@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Bible Quotidienne - Lecture personnalisée</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f7f3e9 0%, #e8e0d3 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card {
+            max-width: 700px;
+            width: 100%;
+            background: #fffef7;
+            border-radius: 48px;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: #2c3e2f;
+            color: #f9eec1;
+            padding: 28px 24px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.9rem;
+        }
+        .content {
+            padding: 28px 24px 32px;
+        }
+        .stats {
+            background: #f4efdf;
+            border-radius: 32px;
+            padding: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .stat-item {
+            flex: 1;
+            text-align: center;
+            background: white;
+            border-radius: 28px;
+            padding: 12px;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2c3e2f;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: #5a5a4e;
+        }
+        .progress-bar-container {
+            background-color: #e2dacd;
+            border-radius: 60px;
+            height: 28px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-fill {
+            background: #5b8c5a;
+            width: 0%;
+            height: 100%;
+            border-radius: 60px;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .today-reading {
+            background: #e9f0e6;
+            border-left: 8px solid #3a6b3a;
+            padding: 18px;
+            border-radius: 28px;
+            margin: 20px 0;
+        }
+        .selector-group {
+            background: #f9f5ea;
+            border-radius: 28px;
+            padding: 18px;
+            margin: 20px 0;
+        }
+        .selector-group label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 40px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+        button {
+            background: #2c3e2f;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        button:active {
+            transform: scale(0.97);
+        }
+        .notification-status {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            text-align: center;
+            color: #5a5a4a;
+            background: #faf7ef;
+            padding: 10px;
+            border-radius: 60px;
+        }
+        .test-notif {
+            background: #4a6a4a;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="header">
+        <h1>📖 Parcours Biblique</h1>
+        <p id="rythmeLabel">10 chapitres par jour</p>
+    </div>
+    <div class="content">
+        <div class="selector-group">
+    <label>📖 Livre :</label>
+    <select id="livreSelect"></select>
+</div>
+<!-- Liste des colonnes du tableau -->
+<div class="selector-group">
+    <label>📚 Parcours :</label>
+    <select id="parcoursSelect">
+        <option value="1">Colonne 1</option>
+        <option value="2">Colonne 2</option>
+        <option value="3">Colonne 3</option>
+        <option value="4">Colonne 4</option>
+        <option value="5">Colonne 5</option>
+        <option value="6">Colonne 6</option>
+        <option value="7">Colonne 7</option>
+        <option value="8">Colonne 8</option>
+        <option value="9">Colonne 9</option>
+    </select>
+</div>
+        <div class="stats">
+            <div class="stat-item"><div class="stat-number" id="totalChapitres">1189</div><div class="stat-label">Chapitres</div></div>
+            <div class="stat-item"><div class="stat-number" id="joursTotal">—</div><div class="stat-label">Jours</div></div>
+            <div class="stat-item"><div class="stat-number" id="jourActuel">—</div><div class="stat-label">Jour #</div></div>
+        </div>
+        <div class="progress-section">
+            <div class="progress-bar-container"><div class="progress-fill" id="progressFill">0%</div></div>
+            <div style="display: flex; justify-content: space-between; font-size:0.75rem;">
+                <span>Lus : <strong id="chapitresLus">0</strong></span>
+                <span>Restants : <strong id="chapitresRestants">1189</strong></span>
+            </div>
+        </div>
+        <div class="today-reading">
+            <div class="today-title">📅 Lecture d'aujourd'hui</div>
+            <div id="lectureAjourdhui">—</div>
+            <div id="chapitresRangee" style="margin-top: 8px; font-family: monospace;"></div>
+        </div>
+
+        <!-- SELECTEUR DE RYTHME -->
+        <div class="selector-group">
+            <label>⚙️ Chapitres par jour :</label>
+            <select id="rythmeSelect">
+                <option value="5">5 chapitres/jour (doucement)</option>
+                <option value="10">10 chapitres/jour</option>
+                <option value="20" selected>20 chapitres/jour (recommandé)</option>
+                <option value="30">30 chapitres/jour (intensif)</option>
+                <option value="40">40 chapitres/jour (challenge)</option>
+            </select>
+            <button id="appliquerRythmeBtn">🔄 Appliquer ce rythme</button>
+        </div>
+        <label style="margin-top:15px;display:block;">
+            ✍️ Nombre personnalisé :
+        </label>
+        <input type="number"
+               id="customRythme"
+                min="1"
+               max="150"
+               placeholder="Ex : 17">
+        
+        <button id="appliquerCustomBtn">
+            ✔️ Appliquer le nombre personnalisé
+        </button>
+        <!-- DATE DE DÉBUT -->
+        <div class="selector-group">
+            <label>📆 Date de début :</label>
+            <input type="date" id="startDateInput">
+            <button id="resetBtn">✅ Changer la date</button>
+        </div>
+
+        <div class="notification-status" id="notifMsg">
+            🔔 Notifications automatiques (même app fermée si supporté)
+        </div>
+        <button id="testNotifBtn" class="test-notif">🔔 Tester une notification</button>
+    </div>
+</div>
+
+<script>
+    // ========== CONFIGURATION ==========
+    const CHAPITRES_TOTAL = 1189;
+    let CHAPITRES_PAR_JOUR = 20;  // valeur par défaut (sera chargée du localStorage)
+    let JOURS_TOTAL = Math.ceil(CHAPITRES_TOTAL / CHAPITRES_PAR_JOUR);
+
+    // Clés localStorage
+    const STORAGE_START_DATE = "bibleReadingStartDate";
+    const STORAGE_RYTHME = "bibleReadingRythme";
+    const STORAGE_LAST_NOTIF_DAY = "bibleLastNotifiedDay";
+
+    // Éléments DOM
+    const rythmeSelect = document.getElementById("rythmeSelect");
+    const appliquerRythmeBtn = document.getElementById("appliquerRythmeBtn");
+    const startDateInput = document.getElementById("startDateInput");
+    const resetBtn = document.getElementById("resetBtn");
+    const testNotifBtn = document.getElementById("testNotifBtn");
+    const rythmeLabel = document.getElementById("rythmeLabel");
+
+    // ========== FONCTIONS UTILITAIRES ==========
+    function saveRythme() {
+        localStorage.setItem(STORAGE_RYTHME, CHAPITRES_PAR_JOUR);
+    }
+
+    function loadRythme() {
+        const saved = localStorage.getItem(STORAGE_RYTHME);
+        if (saved && !isNaN(parseInt(saved))) {
+            CHAPITRES_PAR_JOUR = parseInt(saved);
+        } else {
+            CHAPITRES_PAR_JOUR = 20;
+        }
+        // Mettre à jour le select visuellement
+        rythmeSelect.value = CHAPITRES_PAR_JOUR;
+        rythmeLabel.innerText = CHAPITRES_PAR_JOUR + " chapitres par jour";
+        // Recalculer jours total
+        JOURS_TOTAL = Math.ceil(CHAPITRES_TOTAL / CHAPITRES_PAR_JOUR);
+    }
+
+    function setRythme(nouveauRythme) {
+        if (nouveauRythme === CHAPITRES_PAR_JOUR) return;
+        CHAPITRES_PAR_JOUR = nouveauRythme;
+        JOURS_TOTAL = Math.ceil(CHAPITRES_TOTAL / CHAPITRES_PAR_JOUR);
+        saveRythme();
+        rythmeLabel.innerText = CHAPITRES_PAR_JOUR + " chapitres par jour";
+        // Important : reset des notifications pour éviter de rater des jours
+        localStorage.removeItem(STORAGE_LAST_NOTIF_DAY);
+        updateAll();  // rafraîchir tout l'affichage
+        planifierNotificationsManquantes(); // relancer les vérifications
+    }
+
+    function getStartDate() {
+        const stored = localStorage.getItem(STORAGE_START_DATE);
+        if (stored) return new Date(stored);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        return today;
+    }
+
+    function saveStartDate(date) {
+        localStorage.setItem(STORAGE_START_DATE, date.toISOString().split('T')[0]);
+    }
+
+    function diffDays(date1, date2) {
+        const d1 = new Date(date1); d1.setHours(0,0,0,0);
+        const d2 = new Date(date2); d2.setHours(0,0,0,0);
+        return Math.floor((d2 - d1) / (1000*60*60*24));
+    }
+
+    function getCurrentPlanDay(startDate) {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const daysSinceStart = diffDays(startDate, today);
+        if (daysSinceStart < 0) return 0;
+        const planDay = daysSinceStart + 1;
+        if (planDay > JOURS_TOTAL) return JOURS_TOTAL;
+        return planDay;
+    }
+
+    function getChapitresLus(planDay) {
+        if (planDay <= 0) return 0;
+        if (planDay >= JOURS_TOTAL) return CHAPITRES_TOTAL;
+        const lus = planDay * CHAPITRES_PAR_JOUR;
+        return Math.min(lus, CHAPITRES_TOTAL);
+    }
+
+    function getChapitreRangeForDay(dayNum) {
+        if (dayNum <= 0) return null;
+        const startChap = (dayNum-1)*CHAPITRES_PAR_JOUR + 1;
+        let endChap = dayNum * CHAPITRES_PAR_JOUR;
+        if (endChap > CHAPITRES_TOTAL) endChap = CHAPITRES_TOTAL;
+        if (startChap > CHAPITRES_TOTAL) return null;
+        return { start: startChap, end: endChap };
+    }
+
+    function updateAll() {
+        const startDate = getStartDate();
+        startDateInput.value = startDate.toISOString().split('T')[0];
+        const planDay = getCurrentPlanDay(startDate);
+        const chapitresLus = getChapitresLus(planDay);
+        const pourcentage = (chapitresLus/CHAPITRES_TOTAL)*100;
+        const restants = CHAPITRES_TOTAL - chapitresLus;
+
+        document.getElementById("totalChapitres").innerText = CHAPITRES_TOTAL;
+        document.getElementById("joursTotal").innerText = JOURS_TOTAL;
+        document.getElementById("jourActuel").innerHTML = (planDay>0?planDay:0)+" / "+JOURS_TOTAL;
+        document.getElementById("chapitresLus").innerText = chapitresLus;
+        document.getElementById("chapitresRestants").innerText = restants;
+        const progressFill = document.getElementById("progressFill");
+        progressFill.style.width = pourcentage+"%";
+        progressFill.innerText = Math.floor(pourcentage)+"%";
+
+        let lectureHtml = "", rangeHtml = "";
+        if (planDay>=1 && planDay<=JOURS_TOTAL) {
+            const range = getChapitreRangeForDay(planDay);
+            if(range){
+                const nb = range.end-range.start+1;
+                lectureHtml = `📖 Lire ${nb} chapitre${nb>1?'s':''} (${range.start} à ${range.end})`;
+                rangeHtml = `📌 Chapitres ${range.start} → ${range.end}`;
+                if(planDay===JOURS_TOTAL && nb<CHAPITRES_PAR_JOUR) lectureHtml += ` — Dernier jour ! 🎉`;
+            } else { lectureHtml = "✅ Terminé !"; rangeHtml = "Félicitations !"; }
+        } else if(planDay===0) { lectureHtml = "📅 Plan non commencé"; rangeHtml = "Choisissez une date de début."; }
+        else { lectureHtml = "🏁 Bible entièrement lue !"; rangeHtml = "⭐ Bravo !"; }
+        document.getElementById("lectureAjourdhui").innerText = lectureHtml;
+        document.getElementById("chapitresRangee").innerText = rangeHtml;
+
+        // Vérifier et envoyer notification automatique (même app fermée ? À chaque ouverture, on rattrape)
+        verifierEtEnvoyerNotifications(planDay);
+    }
+
+    // ========== NOTIFICATIONS AUTOMATIQUES (RATTRAPAGE + PROGRAMMATION) ==========
+    function requestNotificationPermission() {
+        if (!("Notification" in window)) return;
+        if (Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+    }
+
+    // Envoyer une notification POUR UN JOUR PRÉCIS (jourNum = numéro du plan)
+    function envoyerNotificationPourJour(dayNum) {
+        if (!("Notification" in window)) return false;
+        if (Notification.permission !== "granted") return false;
+        const range = getChapitreRangeForDay(dayNum);
+        if (!range) return false;
+        const nbChap = range.end - range.start + 1;
+        const message = `Jour ${dayNum}/${JOURS_TOTAL} : ${nbChap} chapitres (${range.start}–${range.end})`;
+        const notification = new Notification("📖 Rappel Bible", { body: message, icon: "https://cdn-icons-png.flaticon.com/512/2350/2350009.png" });
+        setTimeout(() => notification.close(), 7000);
+        return true;
+    }
+
+    // Vérifier quels jours ont été manqués et notifier (rattrapage)
+    function verifierEtEnvoyerNotifications(planDayActuel) {
+        if (!("Notification" in window)) return;
+        if (Notification.permission !== "granted") return;
+
+        const startDate = getStartDate();
+        const today = new Date(); today.setHours(0,0,0,0);
+        const lastNotifiedDayStr = localStorage.getItem(STORAGE_LAST_NOTIF_DAY);
+        let lastNotifiedDay = lastNotifiedDayStr ? parseInt(lastNotifiedDayStr) : 0;
+        
+        // On notifie pour chaque jour entre lastNotifiedDay+1 et planDayActuel (max 5 pour éviter spam)
+        const startDay = Math.max(1, lastNotifiedDay+1);
+        const endDay = Math.min(planDayActuel, JOURS_TOTAL);
+        if (startDay <= endDay && (endDay - startDay) <= 5) {
+            for (let d = startDay; d <= endDay; d++) {
+                setTimeout(() => envoyerNotificationPourJour(d), d*200);
+            }
+            localStorage.setItem(STORAGE_LAST_NOTIF_DAY, planDayActuel);
+        } else if (startDay <= endDay && (endDay - startDay) > 5) {
+            // juste notifier pour le jour actuel
+            envoyerNotificationPourJour(planDayActuel);
+            localStorage.setItem(STORAGE_LAST_NOTIF_DAY, planDayActuel);
+        }
+
+        // Programmer la notification pour le lendemain (si pas déjà programmée)
+        programmerProchaineNotification();
+    }
+
+    function programmerProchaineNotification() {
+        if (!("Notification" in window)) return;
+        if (Notification.permission !== "granted") return;
+
+        const startDate = getStartDate();
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(9, 0, 0, 0);  // 9h du matin
+        const now = new Date();
+        let delay = tomorrow - now;
+        if (delay < 0) delay = 24*60*60*1000;
+        
+        // Stocker l'ID du timeout pour éviter des doublons
+        if (window._notifTimeout) clearTimeout(window._notifTimeout);
+        window._notifTimeout = setTimeout(() => {
+            const todayPlanDay = getCurrentPlanDay(getStartDate());
+            if (todayPlanDay >= 1 && todayPlanDay <= JOURS_TOTAL) {
+                envoyerNotificationPourJour(todayPlanDay);
+                localStorage.setItem(STORAGE_LAST_NOTIF_DAY, todayPlanDay);
+            }
+            programmerProchaineNotification(); // replanifier
+        }, delay);
+    }
+
+    // À CHAQUE OUVERTURE de l'app, on tente aussi une notification si nécessaire
+    function planifierNotificationsManquantes() {
+        if (Notification.permission === "granted") {
+            const startDate = getStartDate();
+            const planDay = getCurrentPlanDay(startDate);
+            verifierEtEnvoyerNotifications(planDay);
+        }
+    }
+
+    // Tester une notification manuellement
+    function testNotification() {
+        if (!("Notification" in window)) { alert("Navigateur ne supporte pas les notifications"); return; }
+        if (Notification.permission === "granted") {
+            new Notification("🔔 Test réussi", { body: "Les notifications fonctionnent sur votre appareil !" });
+        } else if (Notification.permission === "default") {
+            Notification.requestPermission().then(perm => {
+                if(perm === "granted") testNotification();
+                else alert("Veuillez accepter les notifications");
+            });
+        } else {
+            alert("Notifications bloquées. Activez-les dans les paramètres Android > Applications > cette app > Notifications");
+        }
+    }
+
+    // ========== INITIALISATION ==========
+    function init() {
+        loadRythme();
+        if (!localStorage.getItem(STORAGE_START_DATE)) {
+            const today = new Date(); today.setHours(0,0,0,0);
+            saveStartDate(today);
+        }
+        updateAll();
+        
+        appliquerRythmeBtn.addEventListener("click", () => {
+            const newVal = parseInt(rythmeSelect.value);
+            if (!isNaN(newVal) && newVal > 0) {
+                setRythme(newVal);
+            }
+        });
+        
+        resetBtn.addEventListener("click", () => {
+            if (startDateInput.value) {
+                const newDate = new Date(startDateInput.value);
+                if (!isNaN(newDate.getTime())) {
+                    saveStartDate(newDate);
+                    localStorage.removeItem(STORAGE_LAST_NOTIF_DAY);
+                    updateAll();
+                    planifierNotificationsManquantes();
+                }
+            }
+        });
+        
+        testNotifBtn.addEventListener("click", testNotification);
+        
+        requestNotificationPermission();
+        // Attendre un peu puis planifier
+        setTimeout(() => {
+            if(Notification.permission === "granted") {
+                planifierNotificationsManquantes();
+                programmerProchaineNotification();
+            }
+        }, 1500);
+        
+        // Rafraîchir chaque heure (pour mise à jour du jour)
+        setInterval(() => updateAll(), 3600000);
+    }
+    const customRythme =
+    document.getElementById("customRythme");
+
+const appliquerCustomBtn =
+    document.getElementById("appliquerCustomBtn");
+
+appliquerCustomBtn.addEventListener("click", () => {
+
+    const valeur =
+        parseInt(customRythme.value);
+
+    if (!isNaN(valeur) && valeur > 0) {
+
+        if (![...rythmeSelect.options]
+            .some(o => o.value == valeur)) {
+
+            const option =
+                document.createElement("option");
+
+            option.value = valeur;
+            option.text =
+                valeur + " chapitres/jour";
+
+            rythmeSelect.appendChild(option);
+        }
+
+        rythmeSelect.value = valeur;
+        setRythme(valeur);
+    }
+});
+// Structure des colonnes du parcours
+const parcoursBiblique = {
+1: [
+"Genèse (50)","Josué (24)","1 Chroniques (29)","Job (42)",
+"Ésaïe (66)","Matthieu (28)",
+"Romains (16)"
+],
+
+2: [
+"Exode (40)","Juges (21)" ,"2 Chroniques (36)","Psaumes (150)",
+"Jérémie (52)",
+"Marc (16)","1 Corinthiens (16)"
+],
+
+3: [
+"Lévitique (27)","Ruth (4)",
+"Esdras (10)","Proverbes (31)",
+"Lamentations (5)","Luc (24)",
+"2 Corinthiens (13)"
+],
+
+4: [
+"Nombres (36)","1 Samuel (31)","2 Samuel (24)",
+"Néhémie (13)","Ecclésiaste (12)",
+"Ézéchiel (48)","Jean (21)",
+"Galates (6)"
+],
+
+5: [
+"Deutéronome (34)","1 Rois (22)","2 Rois (25)",
+"Esther 10","Cantique des Cantiques (8)",
+"Daniel (12)","Actes (28)",
+"Éphésiens (6)"
+],
+
+6: [
+"Osée (14)","Philippiens (4)",
+"Joël (4)","Colossiens (4)",
+"Amos (9)","1 Thessaloniciens (5)","Abdias (1)"
+],
+
+7: [
+"2 Thessaloniciens (3)","Jonas (4)","1 Timothée (6)",
+"Michée (7)","2 Timothée (4)","Nahum (3)",
+"Tite (3)"
+],
+
+8: [
+"Habacuc (3)","Philémon (1)",
+"Sophonie (3)","Heubreux (13)","Aggée (2)",
+"Jacques (5)","Zacharie (14)"
+],
+
+9: [
+"1 Pierre (5)","2 Pierre 3","Malachie (4)",
+"1 Jean (5)","2 Jean (1)","3 Jean (1)",
+"Jude (1)","Apocalypse (22)"
+]
+};
+// Chargement automatique des livres selon la colonne choisie
+const parcoursSelect =
+document.getElementById("parcoursSelect");
+
+const livreSelect =
+document.getElementById("livreSelect");
+
+function chargerLivres() {
+
+    const colonne =
+    parcoursSelect.value;
+
+    livreSelect.innerHTML = "";
+
+    parcoursBiblique[colonne]
+        .forEach(livre => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = livre;
+        option.textContent = livre;
+
+        livreSelect.appendChild(option);
+    });
+}
+
+parcoursSelect.addEventListener(
+    "change",
+    chargerLivres
+);
+
+chargerLivres();
+
+
+    init();
+</script>
+<!-- Liste des livres bibliques (ordre canonique) -->
+
+
+</body>
+</html>
