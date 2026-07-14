@@ -92,6 +92,34 @@
             border-radius: 28px;
             margin: 20px 0;
         }
+        .location-card {
+            background: #f4efe3;
+            border-radius: 28px;
+            padding: 16px 20px;
+            margin: 15px 0 20px;
+            border: 1px solid #dcd5c5;
+        }
+        .location-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #2c3e2f;
+            margin-bottom: 6px;
+        }
+        .location-detail {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #3a5a3a;
+            font-family: 'Georgia', serif;
+        }
+        .location-detail span {
+            background: #2c3e2f;
+            color: #f9eec1;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 400;
+            margin-left: 8px;
+        }
         .selector-group {
             background: #f9f5ea;
             border-radius: 28px;
@@ -138,39 +166,103 @@
             background: #4a6a4a;
             margin-top: 8px;
         }
+        .menu-toggle {
+            background: #3a5a3a;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+        .menu-toggle:hover {
+            background: #2a4a2a;
+        }
+        .menu-content {
+            display: none;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .menu-content.open {
+            display: block;
+        }
+        .menu-content .selector-group {
+            margin: 10px 0;
+        }
+        .custom-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .custom-row input {
+            flex: 2;
+            min-width: 120px;
+        }
+        .custom-row button {
+            flex: 1;
+            min-width: 100px;
+            margin-top: 5px;
+        }
+        @media (max-width: 500px) {
+            .stat-number { font-size: 1.5rem; }
+            .header h1 { font-size: 1.5rem; }
+            .location-detail { font-size: 1rem; }
+        }
     </style>
 </head>
 <body>
 <div class="card">
     <div class="header">
         <h1>📖 Parcours Biblique</h1>
-        <p id="rythmeLabel">10 chapitres par jour</p>
+        <p id="rythmeLabel">20 chapitres par jour</p>
     </div>
     <div class="content">
-        <div class="selector-group">
-    <label>📖 Livre :</label>
-    <select id="livreSelect"></select>
-</div>
-<!-- Liste des colonnes du tableau -->
-<div class="selector-group">
-    <label>📚 Parcours :</label>
-    <select id="parcoursSelect">
-        <option value="1">Colonne 1</option>
-        <option value="2">Colonne 2</option>
-        <option value="3">Colonne 3</option>
-        <option value="4">Colonne 4</option>
-        <option value="5">Colonne 5</option>
-        <option value="6">Colonne 6</option>
-        <option value="7">Colonne 7</option>
-        <option value="8">Colonne 8</option>
-        <option value="9">Colonne 9</option>
-    </select>
-</div>
+
+        <!-- ===== MENU DÉROULANT PARAMÈTRES ===== -->
+        <button class="menu-toggle" id="menuToggle">⚙️ Paramètres ▼</button>
+        <div class="menu-content" id="menuContent">
+            <!-- Rythme -->
+            <div class="selector-group">
+                <label>⚙️ Chapitres par jour :</label>
+                <select id="rythmeSelect">
+                    <option value="5">5 chapitres/jour (doucement)</option>
+                    <option value="10">10 chapitres/jour</option>
+                    <option value="20" selected>20 chapitres/jour (recommandé)</option>
+                    <option value="30">30 chapitres/jour (intensif)</option>
+                    <option value="40">40 chapitres/jour (challenge)</option>
+                </select>
+                <button id="appliquerRythmeBtn">🔄 Appliquer ce rythme</button>
+            </div>
+
+            <!-- Personnalisé -->
+            <div class="selector-group">
+                <label>✍️ Nombre personnalisé :</label>
+                <div class="custom-row">
+                    <input type="number" id="customRythme" min="1" max="150" placeholder="Ex : 17">
+                    <button id="appliquerCustomBtn">✔️ Appliquer</button>
+                </div>
+            </div>
+
+            <!-- Date de début -->
+            <div class="selector-group">
+                <label>📆 Date de début :</label>
+                <input type="date" id="startDateInput">
+                <button id="resetBtn">✅ Changer la date</button>
+            </div>
+        </div>
+
+        <!-- ===== STATS ===== -->
         <div class="stats">
             <div class="stat-item"><div class="stat-number" id="totalChapitres">1189</div><div class="stat-label">Chapitres</div></div>
             <div class="stat-item"><div class="stat-number" id="joursTotal">—</div><div class="stat-label">Jours</div></div>
             <div class="stat-item"><div class="stat-number" id="jourActuel">—</div><div class="stat-label">Jour #</div></div>
         </div>
+
+        <!-- ===== PROGRESSION ===== -->
         <div class="progress-section">
             <div class="progress-bar-container"><div class="progress-fill" id="progressFill">0%</div></div>
             <div style="display: flex; justify-content: space-between; font-size:0.75rem;">
@@ -178,43 +270,43 @@
                 <span>Restants : <strong id="chapitresRestants">1189</strong></span>
             </div>
         </div>
+
+        <!-- ===== LOCALISATION ===== -->
+        <div class="location-card">
+            <div class="location-title">📍 Où en êtes-vous ?</div>
+            <div class="location-detail" id="locationDetail">
+                — <span>chapitre ?</span>
+            </div>
+        </div>
+
+        <!-- ===== LECTURE DU JOUR ===== -->
         <div class="today-reading">
             <div class="today-title">📅 Lecture d'aujourd'hui</div>
             <div id="lectureAjourdhui">—</div>
             <div id="chapitresRangee" style="margin-top: 8px; font-family: monospace;"></div>
         </div>
 
-        <!-- SELECTEUR DE RYTHME -->
+        <!-- ===== PARCOURS (colonnes) ===== -->
         <div class="selector-group">
-            <label>⚙️ Chapitres par jour :</label>
-            <select id="rythmeSelect">
-                <option value="5">5 chapitres/jour (doucement)</option>
-                <option value="10">10 chapitres/jour</option>
-                <option value="20" selected>20 chapitres/jour (recommandé)</option>
-                <option value="30">30 chapitres/jour (intensif)</option>
-                <option value="40">40 chapitres/jour (challenge)</option>
+            <label>📚 Parcours :</label>
+            <select id="parcoursSelect">
+                <option value="1">Colonne 1</option>
+                <option value="2">Colonne 2</option>
+                <option value="3">Colonne 3</option>
+                <option value="4">Colonne 4</option>
+                <option value="5">Colonne 5</option>
+                <option value="6">Colonne 6</option>
+                <option value="7">Colonne 7</option>
+                <option value="8">Colonne 8</option>
+                <option value="9">Colonne 9</option>
             </select>
-            <button id="appliquerRythmeBtn">🔄 Appliquer ce rythme</button>
         </div>
-        <label style="margin-top:15px;display:block;">
-            ✍️ Nombre personnalisé :
-        </label>
-        <input type="number"
-               id="customRythme"
-                min="1"
-               max="150"
-               placeholder="Ex : 17">
-        
-        <button id="appliquerCustomBtn">
-            ✔️ Appliquer le nombre personnalisé
-        </button>
-        <!-- DATE DE DÉBUT -->
         <div class="selector-group">
-            <label>📆 Date de début :</label>
-            <input type="date" id="startDateInput">
-            <button id="resetBtn">✅ Changer la date</button>
+            <label>📖 Livre :</label>
+            <select id="livreSelect"></select>
         </div>
 
+        <!-- ===== NOTIFICATIONS ===== -->
         <div class="notification-status" id="notifMsg">
             🔔 Notifications automatiques (même app fermée si supporté)
         </div>
@@ -223,12 +315,110 @@
 </div>
 
 <script>
-    // ========== CONFIGURATION ==========
+    // ============================================================
+    // 1. ORDRE DES LIVRES (pour la localisation)
+    // ============================================================
+    const BIBLE_ORDER = [
+        { name: "Genèse", chapters: 50 },
+        { name: "Josué", chapters: 24 },
+        { name: "1 Chroniques", chapters: 29 },
+        { name: "Job", chapters: 42 },
+        { name: "Ésaïe", chapters: 66 },
+        { name: "Matthieu", chapters: 28 },
+        { name: "Romains", chapters: 16 },
+        { name: "Exode", chapters: 40 },
+        { name: "Juges", chapters: 21 },
+        { name: "2 Chroniques", chapters: 36 },
+        { name: "Psaumes", chapters: 150 },
+        { name: "Jérémie", chapters: 52 },
+        { name: "Marc", chapters: 16 },
+        { name: "1 Corinthiens", chapters: 16 },
+        { name: "Lévitique", chapters: 27 },
+        { name: "Ruth", chapters: 4 },
+        { name: "Esdras", chapters: 10 },
+        { name: "Proverbes", chapters: 31 },
+        { name: "Lamentations", chapters: 5 },
+        { name: "Luc", chapters: 24 },
+        { name: "2 Corinthiens", chapters: 13 },
+        { name: "Nombres", chapters: 36 },
+        { name: "1 Samuel", chapters: 31 },
+        { name: "2 Samuel", chapters: 24 },
+        { name: "Néhémie", chapters: 13 },
+        { name: "Ecclésiaste", chapters: 12 },
+        { name: "Ézéchiel", chapters: 48 },
+        { name: "Jean", chapters: 21 },
+        { name: "Galates", chapters: 6 },
+        { name: "Deutéronome", chapters: 34 },
+        { name: "1 Rois", chapters: 22 },
+        { name: "2 Rois", chapters: 25 },
+        { name: "Esther", chapters: 10 },
+        { name: "Cantique des Cantiques", chapters: 8 },
+        { name: "Daniel", chapters: 12 },
+        { name: "Actes", chapters: 28 },
+        { name: "Éphésiens", chapters: 6 },
+        { name: "Osée", chapters: 14 },
+        { name: "Philippiens", chapters: 4 },
+        { name: "Joël", chapters: 4 },
+        { name: "Colossiens", chapters: 4 },
+        { name: "Amos", chapters: 9 },
+        { name: "1 Thessaloniciens", chapters: 5 },
+        { name: "Abdias", chapters: 1 },
+        { name: "2 Thessaloniciens", chapters: 3 },
+        { name: "Jonas", chapters: 4 },
+        { name: "1 Timothée", chapters: 6 },
+        { name: "Michée", chapters: 7 },
+        { name: "2 Timothée", chapters: 4 },
+        { name: "Nahum", chapters: 3 },
+        { name: "Tite", chapters: 3 },
+        { name: "Habacuc", chapters: 3 },
+        { name: "Philémon", chapters: 1 },
+        { name: "Sophonie", chapters: 3 },
+        { name: "Hébreux", chapters: 13 },
+        { name: "Aggée", chapters: 2 },
+        { name: "Jacques", chapters: 5 },
+        { name: "Zacharie", chapters: 14 },
+        { name: "1 Pierre", chapters: 5 },
+        { name: "2 Pierre", chapters: 3 },
+        { name: "Malachie", chapters: 4 },
+        { name: "1 Jean", chapters: 5 },
+        { name: "2 Jean", chapters: 1 },
+        { name: "3 Jean", chapters: 1 },
+        { name: "Jude", chapters: 1 },
+        { name: "Apocalypse", chapters: 22 }
+    ];
+
+    // Table cumulative pour localisation rapide
+    function buildCumulativeTable(order) {
+        const table = [];
+        let cumulative = 0;
+        for (const book of order) {
+            const start = cumulative + 1;
+            const end = cumulative + book.chapters;
+            table.push({ name: book.name, chapters: book.chapters, start, end });
+            cumulative += book.chapters;
+        }
+        return table;
+    }
+    const CUMULATIVE_TABLE = buildCumulativeTable(BIBLE_ORDER);
+
+    function getLocationFromReadChapters(readCount) {
+        if (readCount <= 0) return { book: "—", chapter: 0, progress: 0 };
+        if (readCount >= 1189) return { book: "Apocalypse", chapter: 22, progress: 100 };
+        for (const item of CUMULATIVE_TABLE) {
+            if (readCount >= item.start && readCount <= item.end) {
+                return { book: item.name, chapter: readCount - item.start + 1, progress: (readCount / 1189) * 100 };
+            }
+        }
+        return { book: "—", chapter: 0, progress: 0 };
+    }
+
+    // ============================================================
+    // 2. CONFIGURATION GÉNÉRALE
+    // ============================================================
     const CHAPITRES_TOTAL = 1189;
-    let CHAPITRES_PAR_JOUR = 20;  // valeur par défaut (sera chargée du localStorage)
+    let CHAPITRES_PAR_JOUR = 20;
     let JOURS_TOTAL = Math.ceil(CHAPITRES_TOTAL / CHAPITRES_PAR_JOUR);
 
-    // Clés localStorage
     const STORAGE_START_DATE = "bibleReadingStartDate";
     const STORAGE_RYTHME = "bibleReadingRythme";
     const STORAGE_LAST_NOTIF_DAY = "bibleLastNotifiedDay";
@@ -240,8 +430,19 @@
     const resetBtn = document.getElementById("resetBtn");
     const testNotifBtn = document.getElementById("testNotifBtn");
     const rythmeLabel = document.getElementById("rythmeLabel");
+    const locationDetail = document.getElementById("locationDetail");
+    const menuToggle = document.getElementById("menuToggle");
+    const menuContent = document.getElementById("menuContent");
 
-    // ========== FONCTIONS UTILITAIRES ==========
+    // Toggle menu
+    menuToggle.addEventListener("click", () => {
+        menuContent.classList.toggle("open");
+        menuToggle.textContent = menuContent.classList.contains("open") ? "⚙️ Paramètres ▲" : "⚙️ Paramètres ▼";
+    });
+
+    // ============================================================
+    // 3. FONCTIONS UTILITAIRES
+    // ============================================================
     function saveRythme() {
         localStorage.setItem(STORAGE_RYTHME, CHAPITRES_PAR_JOUR);
     }
@@ -253,10 +454,8 @@
         } else {
             CHAPITRES_PAR_JOUR = 20;
         }
-        // Mettre à jour le select visuellement
         rythmeSelect.value = CHAPITRES_PAR_JOUR;
         rythmeLabel.innerText = CHAPITRES_PAR_JOUR + " chapitres par jour";
-        // Recalculer jours total
         JOURS_TOTAL = Math.ceil(CHAPITRES_TOTAL / CHAPITRES_PAR_JOUR);
     }
 
@@ -266,10 +465,9 @@
         JOURS_TOTAL = Math.ceil(CHAPITRES_TOTAL / CHAPITRES_PAR_JOUR);
         saveRythme();
         rythmeLabel.innerText = CHAPITRES_PAR_JOUR + " chapitres par jour";
-        // Important : reset des notifications pour éviter de rater des jours
         localStorage.removeItem(STORAGE_LAST_NOTIF_DAY);
-        updateAll();  // rafraîchir tout l'affichage
-        planifierNotificationsManquantes(); // relancer les vérifications
+        updateAll();
+        planifierNotificationsManquantes();
     }
 
     function getStartDate() {
@@ -302,8 +500,7 @@
     function getChapitresLus(planDay) {
         if (planDay <= 0) return 0;
         if (planDay >= JOURS_TOTAL) return CHAPITRES_TOTAL;
-        const lus = planDay * CHAPITRES_PAR_JOUR;
-        return Math.min(lus, CHAPITRES_TOTAL);
+        return Math.min(planDay * CHAPITRES_PAR_JOUR, CHAPITRES_TOTAL);
     }
 
     function getChapitreRangeForDay(dayNum) {
@@ -332,6 +529,17 @@
         progressFill.style.width = pourcentage+"%";
         progressFill.innerText = Math.floor(pourcentage)+"%";
 
+        // Localisation
+        const loc = getLocationFromReadChapters(chapitresLus);
+        if (chapitresLus >= CHAPITRES_TOTAL) {
+            locationDetail.innerHTML = `✅ Terminé ! Toute la Bible est lue. <span>🎉</span>`;
+        } else if (chapitresLus === 0) {
+            locationDetail.innerHTML = `⏳ Pas encore commencé. <span>Genèse 1</span>`;
+        } else {
+            locationDetail.innerHTML = `${loc.book} — chapitre ${loc.chapter} <span>${Math.round(loc.progress)}%</span>`;
+        }
+
+        // Lecture du jour
         let lectureHtml = "", rangeHtml = "";
         if (planDay>=1 && planDay<=JOURS_TOTAL) {
             const range = getChapitreRangeForDay(planDay);
@@ -346,11 +554,12 @@
         document.getElementById("lectureAjourdhui").innerText = lectureHtml;
         document.getElementById("chapitresRangee").innerText = rangeHtml;
 
-        // Vérifier et envoyer notification automatique (même app fermée ? À chaque ouverture, on rattrape)
         verifierEtEnvoyerNotifications(planDay);
     }
 
-    // ========== NOTIFICATIONS AUTOMATIQUES (RATTRAPAGE + PROGRAMMATION) ==========
+    // ============================================================
+    // 4. NOTIFICATIONS
+    // ============================================================
     function requestNotificationPermission() {
         if (!("Notification" in window)) return;
         if (Notification.permission === "default") {
@@ -358,7 +567,6 @@
         }
     }
 
-    // Envoyer une notification POUR UN JOUR PRÉCIS (jourNum = numéro du plan)
     function envoyerNotificationPourJour(dayNum) {
         if (!("Notification" in window)) return false;
         if (Notification.permission !== "granted") return false;
@@ -371,17 +579,11 @@
         return true;
     }
 
-    // Vérifier quels jours ont été manqués et notifier (rattrapage)
     function verifierEtEnvoyerNotifications(planDayActuel) {
         if (!("Notification" in window)) return;
         if (Notification.permission !== "granted") return;
-
-        const startDate = getStartDate();
-        const today = new Date(); today.setHours(0,0,0,0);
         const lastNotifiedDayStr = localStorage.getItem(STORAGE_LAST_NOTIF_DAY);
         let lastNotifiedDay = lastNotifiedDayStr ? parseInt(lastNotifiedDayStr) : 0;
-        
-        // On notifie pour chaque jour entre lastNotifiedDay+1 et planDayActuel (max 5 pour éviter spam)
         const startDay = Math.max(1, lastNotifiedDay+1);
         const endDay = Math.min(planDayActuel, JOURS_TOTAL);
         if (startDay <= endDay && (endDay - startDay) <= 5) {
@@ -390,28 +592,21 @@
             }
             localStorage.setItem(STORAGE_LAST_NOTIF_DAY, planDayActuel);
         } else if (startDay <= endDay && (endDay - startDay) > 5) {
-            // juste notifier pour le jour actuel
             envoyerNotificationPourJour(planDayActuel);
             localStorage.setItem(STORAGE_LAST_NOTIF_DAY, planDayActuel);
         }
-
-        // Programmer la notification pour le lendemain (si pas déjà programmée)
         programmerProchaineNotification();
     }
 
     function programmerProchaineNotification() {
         if (!("Notification" in window)) return;
         if (Notification.permission !== "granted") return;
-
-        const startDate = getStartDate();
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(9, 0, 0, 0);  // 9h du matin
+        tomorrow.setHours(9, 0, 0, 0);
         const now = new Date();
         let delay = tomorrow - now;
         if (delay < 0) delay = 24*60*60*1000;
-        
-        // Stocker l'ID du timeout pour éviter des doublons
         if (window._notifTimeout) clearTimeout(window._notifTimeout);
         window._notifTimeout = setTimeout(() => {
             const todayPlanDay = getCurrentPlanDay(getStartDate());
@@ -419,20 +614,17 @@
                 envoyerNotificationPourJour(todayPlanDay);
                 localStorage.setItem(STORAGE_LAST_NOTIF_DAY, todayPlanDay);
             }
-            programmerProchaineNotification(); // replanifier
+            programmerProchaineNotification();
         }, delay);
     }
 
-    // À CHAQUE OUVERTURE de l'app, on tente aussi une notification si nécessaire
     function planifierNotificationsManquantes() {
         if (Notification.permission === "granted") {
-            const startDate = getStartDate();
-            const planDay = getCurrentPlanDay(startDate);
+            const planDay = getCurrentPlanDay(getStartDate());
             verifierEtEnvoyerNotifications(planDay);
         }
     }
 
-    // Tester une notification manuellement
     function testNotification() {
         if (!("Notification" in window)) { alert("Navigateur ne supporte pas les notifications"); return; }
         if (Notification.permission === "granted") {
@@ -447,7 +639,40 @@
         }
     }
 
-    // ========== INITIALISATION ==========
+    // ============================================================
+    // 5. PARCOURS (colonnes)
+    // ============================================================
+    const parcoursBiblique = {
+        1: ["Genèse (50)","Josué (24)","1 Chroniques (29)","Job (42)","Ésaïe (66)","Matthieu (28)","Romains (16)"],
+        2: ["Exode (40)","Juges (21)","2 Chroniques (36)","Psaumes (150)","Jérémie (52)","Marc (16)","1 Corinthiens (16)"],
+        3: ["Lévitique (27)","Ruth (4)","Esdras (10)","Proverbes (31)","Lamentations (5)","Luc (24)","2 Corinthiens (13)"],
+        4: ["Nombres (36)","1 Samuel (31)","2 Samuel (24)","Néhémie (13)","Ecclésiaste (12)","Ézéchiel (48)","Jean (21)","Galates (6)"],
+        5: ["Deutéronome (34)","1 Rois (22)","2 Rois (25)","Esther (10)","Cantique des Cantiques (8)","Daniel (12)","Actes (28)","Éphésiens (6)"],
+        6: ["Osée (14)","Philippiens (4)","Joël (4)","Colossiens (4)","Amos (9)","1 Thessaloniciens (5)","Abdias (1)"],
+        7: ["2 Thessaloniciens (3)","Jonas (4)","1 Timothée (6)","Michée (7)","2 Timothée (4)","Nahum (3)","Tite (3)"],
+        8: ["Habacuc (3)","Philémon (1)","Sophonie (3)","Hébreux (13)","Aggée (2)","Jacques (5)","Zacharie (14)"],
+        9: ["1 Pierre (5)","2 Pierre (3)","Malachie (4)","1 Jean (5)","2 Jean (1)","3 Jean (1)","Jude (1)","Apocalypse (22)"]
+    };
+
+    const parcoursSelect = document.getElementById("parcoursSelect");
+    const livreSelect = document.getElementById("livreSelect");
+
+    function chargerLivres() {
+        const colonne = parcoursSelect.value;
+        livreSelect.innerHTML = "";
+        parcoursBiblique[colonne].forEach(livre => {
+            const option = document.createElement("option");
+            option.value = livre;
+            option.textContent = livre;
+            livreSelect.appendChild(option);
+        });
+    }
+    parcoursSelect.addEventListener("change", chargerLivres);
+    chargerLivres();
+
+    // ============================================================
+    // 6. INITIALISATION
+    // ============================================================
     function init() {
         loadRythme();
         if (!localStorage.getItem(STORAGE_START_DATE)) {
@@ -455,14 +680,26 @@
             saveStartDate(today);
         }
         updateAll();
-        
+
         appliquerRythmeBtn.addEventListener("click", () => {
             const newVal = parseInt(rythmeSelect.value);
-            if (!isNaN(newVal) && newVal > 0) {
-                setRythme(newVal);
+            if (!isNaN(newVal) && newVal > 0) setRythme(newVal);
+        });
+
+        document.getElementById("appliquerCustomBtn").addEventListener("click", () => {
+            const val = parseInt(document.getElementById("customRythme").value);
+            if (!isNaN(val) && val > 0) {
+                if (![...rythmeSelect.options].some(o => o.value == val)) {
+                    const opt = document.createElement("option");
+                    opt.value = val;
+                    opt.text = val + " chapitres/jour";
+                    rythmeSelect.appendChild(opt);
+                }
+                rythmeSelect.value = val;
+                setRythme(val);
             }
         });
-        
+
         resetBtn.addEventListener("click", () => {
             if (startDateInput.value) {
                 const newDate = new Date(startDateInput.value);
@@ -474,149 +711,21 @@
                 }
             }
         });
-        
+
         testNotifBtn.addEventListener("click", testNotification);
-        
+
         requestNotificationPermission();
-        // Attendre un peu puis planifier
         setTimeout(() => {
-            if(Notification.permission === "granted") {
+            if (Notification.permission === "granted") {
                 planifierNotificationsManquantes();
                 programmerProchaineNotification();
             }
         }, 1500);
-        
-        // Rafraîchir chaque heure (pour mise à jour du jour)
+
         setInterval(() => updateAll(), 3600000);
     }
-    const customRythme =
-    document.getElementById("customRythme");
-
-const appliquerCustomBtn =
-    document.getElementById("appliquerCustomBtn");
-
-appliquerCustomBtn.addEventListener("click", () => {
-
-    const valeur =
-        parseInt(customRythme.value);
-
-    if (!isNaN(valeur) && valeur > 0) {
-
-        if (![...rythmeSelect.options]
-            .some(o => o.value == valeur)) {
-
-            const option =
-                document.createElement("option");
-
-            option.value = valeur;
-            option.text =
-                valeur + " chapitres/jour";
-
-            rythmeSelect.appendChild(option);
-        }
-
-        rythmeSelect.value = valeur;
-        setRythme(valeur);
-    }
-});
-// Structure des colonnes du parcours
-const parcoursBiblique = {
-1: [
-"Genèse (50)","Josué (24)","1 Chroniques (29)","Job (42)",
-"Ésaïe (66)","Matthieu (28)",
-"Romains (16)"
-],
-
-2: [
-"Exode (40)","Juges (21)" ,"2 Chroniques (36)","Psaumes (150)",
-"Jérémie (52)",
-"Marc (16)","1 Corinthiens (16)"
-],
-
-3: [
-"Lévitique (27)","Ruth (4)",
-"Esdras (10)","Proverbes (31)",
-"Lamentations (5)","Luc (24)",
-"2 Corinthiens (13)"
-],
-
-4: [
-"Nombres (36)","1 Samuel (31)","2 Samuel (24)",
-"Néhémie (13)","Ecclésiaste (12)",
-"Ézéchiel (48)","Jean (21)",
-"Galates (6)"
-],
-
-5: [
-"Deutéronome (34)","1 Rois (22)","2 Rois (25)",
-"Esther 10","Cantique des Cantiques (8)",
-"Daniel (12)","Actes (28)",
-"Éphésiens (6)"
-],
-
-6: [
-"Osée (14)","Philippiens (4)",
-"Joël (4)","Colossiens (4)",
-"Amos (9)","1 Thessaloniciens (5)","Abdias (1)"
-],
-
-7: [
-"2 Thessaloniciens (3)","Jonas (4)","1 Timothée (6)",
-"Michée (7)","2 Timothée (4)","Nahum (3)",
-"Tite (3)"
-],
-
-8: [
-"Habacuc (3)","Philémon (1)",
-"Sophonie (3)","Heubreux (13)","Aggée (2)",
-"Jacques (5)","Zacharie (14)"
-],
-
-9: [
-"1 Pierre (5)","2 Pierre 3","Malachie (4)",
-"1 Jean (5)","2 Jean (1)","3 Jean (1)",
-"Jude (1)","Apocalypse (22)"
-]
-};
-// Chargement automatique des livres selon la colonne choisie
-const parcoursSelect =
-document.getElementById("parcoursSelect");
-
-const livreSelect =
-document.getElementById("livreSelect");
-
-function chargerLivres() {
-
-    const colonne =
-    parcoursSelect.value;
-
-    livreSelect.innerHTML = "";
-
-    parcoursBiblique[colonne]
-        .forEach(livre => {
-
-        const option =
-            document.createElement("option");
-
-        option.value = livre;
-        option.textContent = livre;
-
-        livreSelect.appendChild(option);
-    });
-}
-
-parcoursSelect.addEventListener(
-    "change",
-    chargerLivres
-);
-
-chargerLivres();
-
 
     init();
 </script>
-<!-- Liste des livres bibliques (ordre canonique) -->
-
-
 </body>
 </html>
