@@ -3,180 +3,543 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Bible Quotidienne - Lecture personnalisée</title>
+    <title>📖 Parcours Biblique - Lecture personnalisée</title>
     <style>
         * {
             box-sizing: border-box;
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
         }
         body {
-            background: linear-gradient(145deg, #f7f3e9 0%, #e8e0d3 100%);
+            background: #f5f0e8;
             min-height: 100vh;
-            margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         .card {
-            max-width: 700px;
+            max-width: 780px;
             width: 100%;
-            background: #fffef7;
-            border-radius: 48px;
-            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.3);
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0,0,0,0.2);
             overflow: hidden;
+            border: 1px solid #e8e0d0;
         }
         .header {
-            background: #2c3e2f;
-            color: #f9eec1;
-            padding: 28px 24px;
+            background: #1e3a2f;
+            color: #f7efd0;
+            padding: 24px 24px 18px;
             text-align: center;
+            border-bottom: 3px solid #c9a84c;
         }
         .header h1 {
             margin: 0;
-            font-size: 1.9rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            margin: 4px 0 0;
+            font-size: 0.95rem;
+            opacity: 0.85;
         }
         .content {
-            padding: 28px 24px 32px;
+            padding: 24px 20px 28px;
         }
-        .stats {
-            background: #f4efdf;
-            border-radius: 32px;
-            padding: 18px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .stat-item {
-            flex: 1;
-            text-align: center;
-            background: white;
-            border-radius: 28px;
-            padding: 12px;
-        }
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #2c3e2f;
-        }
-        .stat-label {
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            background: #e7e0d0;
+            padding: 4px 16px;
+            border-radius: 40px;
             font-size: 0.7rem;
-            color: #5a5a4e;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #3a4a3a;
+            margin-bottom: 8px;
         }
-        .progress-bar-container {
-            background-color: #e2dacd;
-            border-radius: 60px;
-            height: 28px;
+        .badge-gold {
+            background: #d4b86a;
+            color: #1e2a1e;
+        }
+        .badge-green {
+            background: #2a5a3a;
+            color: #f5f0e0;
+        }
+        .badge-extra {
+            background: #c9a84c;
+            color: #1e2a1e;
+        }
+        .badge-warning {
+            background: #d4a84c;
+            color: #1e2a1e;
+        }
+
+        /* Statistiques */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .stat-box {
+            background: #f4efe4;
+            border-radius: 20px;
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid #e2dac8;
+        }
+        .stat-box .number {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1e3a2f;
+        }
+        .stat-box .label {
+            font-size: 0.6rem;
+            color: #5a5a4a;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Progression */
+        .progress-wrap {
+            background: #e8e0d0;
+            border-radius: 40px;
+            height: 26px;
             overflow: hidden;
-            margin: 15px 0;
+            margin: 10px 0 4px;
+            position: relative;
         }
-        .progress-fill {
-            background: #5b8c5a;
-            width: 0%;
+        .progress-bar {
+            background: #3a7a4a;
             height: 100%;
-            border-radius: 60px;
-            transition: width 0.3s;
+            border-radius: 40px;
+            transition: width 0.4s;
             display: flex;
             align-items: center;
             justify-content: flex-end;
             padding-right: 12px;
             color: white;
-            font-weight: bold;
-            font-size: 0.8rem;
+            font-weight: 700;
+            font-size: 0.7rem;
+            min-width: 36px;
         }
-        .today-reading {
-            background: #e9f0e6;
-            border-left: 8px solid #3a6b3a;
-            padding: 18px;
-            border-radius: 28px;
-            margin: 20px 0;
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #5a5a4a;
+            margin-bottom: 12px;
         }
+        .progress-labels strong {
+            color: #1e3a2f;
+        }
+
+        /* Localisation */
         .location-card {
-            background: #f4efe3;
-            border-radius: 28px;
-            padding: 16px 20px;
-            margin: 15px 0 20px;
-            border: 1px solid #dcd5c5;
+            background: #f8f3e8;
+            border-radius: 20px;
+            padding: 14px 18px;
+            margin: 12px 0 16px;
+            border-left: 6px solid #c9a84c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
-        .location-title {
-            font-weight: 700;
-            font-size: 1rem;
-            color: #2c3e2f;
-            margin-bottom: 6px;
-        }
-        .location-detail {
+        .location-card .book {
             font-size: 1.2rem;
-            font-weight: 600;
-            color: #3a5a3a;
-            font-family: 'Georgia', serif;
-        }
-        .location-detail span {
-            background: #2c3e2f;
-            color: #f9eec1;
-            padding: 2px 12px;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            font-weight: 400;
-            margin-left: 8px;
-        }
-        .selector-group {
-            background: #f9f5ea;
-            border-radius: 28px;
-            padding: 18px;
-            margin: 20px 0;
-        }
-        .selector-group label {
             font-weight: 700;
-            display: block;
-            margin-bottom: 8px;
+            color: #1e3a2f;
         }
-        select, input {
-            width: 100%;
-            padding: 12px;
+        .location-card .chapter {
+            background: #1e3a2f;
+            color: #f7efd0;
+            padding: 2px 14px;
             border-radius: 40px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            margin-top: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
-        button {
-            background: #2c3e2f;
+        .location-card .progress-pct {
+            font-weight: 700;
+            color: #3a7a4a;
+            font-size: 0.9rem;
+        }
+
+        /* Lecture du jour - avec cases à cocher */
+        .today-box {
+            background: #ecf3e8;
+            border-radius: 20px;
+            padding: 16px 18px;
+            margin: 12px 0 16px;
+            border: 1px solid #c8d8be;
+        }
+        .today-box .title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #2a4a2a;
+            margin-bottom: 4px;
+        }
+        .today-box .main {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a3a1a;
+        }
+        .today-box .range {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #3a5a3a;
+            margin-top: 4px;
+        }
+
+        /* Sections de lecture matin/soir */
+        .reading-section {
+            background: white;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin: 10px 0;
+            border: 1px solid #dce4d4;
+        }
+        .reading-section .section-label {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #2a4a2a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .reading-section .section-label .icon {
+            font-size: 1.1rem;
+        }
+        .reading-section .section-label .count {
+            background: #1e3a2f;
+            color: #f7efd0;
+            padding: 0 10px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+        }
+        .reading-section .section-label .extra-badge {
+            background: #c9a84c;
+            color: #1e2a1e;
+            padding: 0 10px;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+
+        .chapter-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 6px;
+        }
+        .chapter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: #f8f6f0;
+            border: 1px solid #e8e0d0;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .chapter-item:hover {
+            background: #f0ebe0;
+            border-color: #b8a87a;
+        }
+        .chapter-item.checked {
+            background: #d4e8d4;
+            border-color: #3a7a4a;
+            opacity: 0.7;
+        }
+        .chapter-item.checked .chapter-name {
+            text-decoration: line-through;
+            color: #4a6a4a;
+        }
+        .chapter-item.extra {
+            border-color: #c9a84c;
+            background: #fcf6e8;
+        }
+        .chapter-item.extra.checked {
+            background: #e8e0c8;
+            border-color: #b8973a;
+        }
+        .chapter-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #2a6a3a;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .chapter-item .chapter-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1e3a2f;
+        }
+        .chapter-item .chapter-num {
+            font-size: 0.7rem;
+            color: #6a7a6a;
+            font-weight: 400;
+        }
+        .chapter-item .extra-tag {
+            font-size: 0.55rem;
+            background: #c9a84c;
+            color: #1e2a1e;
+            padding: 1px 8px;
+            border-radius: 40px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+
+        .reading-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #dce4d4;
+            font-size: 0.8rem;
+            color: #3a5a3a;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .reading-summary .progress-text {
+            font-weight: 600;
+        }
+        .reading-summary .progress-text .done {
+            color: #2a6a3a;
+        }
+        .reading-summary .progress-text .total {
+            color: #6a7a6a;
+        }
+        .reading-summary .progress-text .extra-done {
+            color: #b8973a;
+        }
+
+        .btn-complete-day {
+            background: #2a6a3a;
             border: none;
             color: white;
-            padding: 12px 20px;
+            padding: 8px 16px;
             border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
-            width: 100%;
+            font-size: 0.8rem;
+            transition: background 0.2s;
         }
-        button:active {
+        .btn-complete-day:hover {
+            background: #1a5a2a;
+        }
+        .btn-complete-day:disabled {
+            background: #8a9a8a;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .day-complete-banner {
+            background: #2a6a3a;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 700;
+            margin: 10px 0;
+            display: none;
+        }
+        .day-complete-banner.show {
+            display: block;
+        }
+
+        /* Section supplémentaire */
+        .extra-section {
+            background: #fcf6e8;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin: 10px 0;
+            border: 2px dashed #c9a84c;
+            display: none;
+        }
+        .extra-section.show {
+            display: block;
+        }
+        .extra-section .section-label {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #5a4a2a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .extra-section .section-label .icon {
+            font-size: 1.1rem;
+        }
+
+        /* Section plans */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e3a2f;
+            margin: 18px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title .badge {
+            margin-bottom: 0;
+        }
+
+        .plan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .plan-card {
+            background: #f8f4ea;
+            border-radius: 16px;
+            padding: 12px 14px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-align: center;
+        }
+        .plan-card:hover {
+            border-color: #b8a87a;
+            transform: translateY(-2px);
+        }
+        .plan-card.active {
+            border-color: #2a6a3a;
+            background: #eaf3e4;
+        }
+        .plan-card .plan-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1e3a2f;
+        }
+        .plan-card .plan-detail {
+            font-size: 0.7rem;
+            color: #4a5a4a;
+            margin-top: 2px;
+        }
+        .plan-card .plan-badge {
+            font-size: 0.6rem;
+            background: #2a6a3a;
+            color: white;
+            padding: 1px 10px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        /* Sélecteurs */
+        .selector-group {
+            background: #f8f4ea;
+            border-radius: 20px;
+            padding: 14px 16px;
+            margin: 10px 0;
+            border: 1px solid #e2dac8;
+        }
+        .selector-group label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 4px;
+            color: #2a3a2a;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 40px;
+            border: 1px solid #ccc;
+            font-size: 0.95rem;
+            background: white;
+        }
+        .btn {
+            background: #1e3a2f;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 6px;
+        }
+        .btn:hover {
+            background: #2a5a3a;
+        }
+        .btn:active {
             transform: scale(0.97);
         }
-        .notification-status {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            text-align: center;
-            color: #5a5a4a;
-            background: #faf7ef;
-            padding: 10px;
-            border-radius: 60px;
+        .btn-gold {
+            background: #c9a84c;
         }
-        .test-notif {
-            background: #4a6a4a;
-            margin-top: 8px;
+        .btn-gold:hover {
+            background: #b8973a;
         }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            width: auto;
+            margin-top: 0;
+        }
+        .btn-extra {
+            background: #c9a84c;
+            color: #1e2a1e;
+        }
+        .btn-extra:hover {
+            background: #b8973a;
+        }
+        .btn-danger {
+            background: #8a3a3a;
+        }
+        .btn-danger:hover {
+            background: #6a2a2a;
+        }
+        .btn-success {
+            background: #2a6a3a;
+        }
+        .btn-success:hover {
+            background: #1a5a2a;
+        }
+
+        .row-flex {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .row-flex input {
+            flex: 2;
+            min-width: 100px;
+        }
+        .row-flex .btn {
+            flex: 1;
+            min-width: 80px;
+            margin-top: 0;
+        }
+
+        /* Menu */
         .menu-toggle {
             background: #3a5a3a;
             border: none;
             color: white;
-            padding: 12px 20px;
+            padding: 10px 16px;
             border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             transition: 0.2s;
+            font-size: 0.9rem;
         }
         .menu-toggle:hover {
             background: #2a4a2a;
@@ -184,39 +547,171 @@
         .menu-content {
             display: none;
             overflow: hidden;
-            transition: max-height 0.3s ease;
         }
         .menu-content.open {
             display: block;
         }
-        .menu-content .selector-group {
+
+        /* Colonnes */
+        .col-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
             margin: 10px 0;
         }
-        .footer-note {
-            margin-top: 20px;
-            font-size: 0.7rem;
+        .col-card {
+            background: #f8f4ea;
+            border-radius: 14px;
+            padding: 10px 12px;
+            border: 1px solid #e2dac8;
             text-align: center;
-            color: #8f8f7a;
         }
-        .custom-row {
+        .col-card .col-name {
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #3a4a3a;
+            text-transform: uppercase;
+        }
+        .col-card .col-progress {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #1e3a2f;
+            margin: 2px 0;
+        }
+        .col-bar {
+            height: 4px;
+            background: #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .col-bar .fill {
+            height: 100%;
+            background: #3a7a4a;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .col-card .col-books {
+            font-size: 0.6rem;
+            color: #5a5a4a;
+            margin-top: 2px;
+        }
+
+        /* Rapport */
+        .report-box {
+            background: #1e3a2f;
+            color: #f7efd0;
+            border-radius: 20px;
+            padding: 16px 18px;
+            margin: 14px 0;
+        }
+        .report-box .report-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #c9a84c;
+        }
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .report-item {
+            text-align: center;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 8px 4px;
+        }
+        .report-item .r-num {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+        .report-item .r-label {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+        .report-actions {
             display: flex;
             gap: 10px;
-            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .report-actions .btn {
+            flex: 1;
+            min-width: 120px;
+            margin-top: 0;
+        }
+        .btn-whatsapp {
+            background: #25D366;
+        }
+        .btn-whatsapp:hover {
+            background: #1da851;
+        }
+
+        .footer-note {
+            margin-top: 16px;
+            font-size: 0.65rem;
+            text-align: center;
+            color: #8f8f7a;
+            border-top: 1px solid #e8e0d0;
+            padding-top: 14px;
+        }
+
+        .extra-counter {
+            text-align: center;
+            padding: 6px;
+            background: #fcf6e8;
+            border-radius: 12px;
+            margin: 4px 0 8px;
+            font-size: 0.8rem;
+            color: #5a4a2a;
+            display: none;
+        }
+        .extra-counter.show {
+            display: block;
+        }
+        .extra-counter strong {
+            color: #b8973a;
+        }
+
+        /* Progress Setup - dans le menu */
+        .progress-setup {
+            background: #e8f0e0;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin: 10px 0;
+            border: 2px solid #2a6a3a;
+        }
+        .progress-setup .setup-title {
+            font-weight: 700;
+            color: #1e3a2f;
+            margin-bottom: 6px;
+        }
+        .progress-setup .setup-desc {
+            font-size: 0.8rem;
+            color: #4a5a4a;
+        }
+        .progress-setup .setup-inputs {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
             flex-wrap: wrap;
         }
-        .custom-row input {
-            flex: 2;
-            min-width: 120px;
-        }
-        .custom-row button {
+        .progress-setup .setup-inputs select,
+        .progress-setup .setup-inputs input {
             flex: 1;
             min-width: 100px;
-            margin-top: 5px;
         }
+
         @media (max-width: 500px) {
-            .stat-number { font-size: 1.5rem; }
-            .header h1 { font-size: 1.5rem; }
-            .location-detail { font-size: 1rem; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .plan-grid { grid-template-columns: repeat(2, 1fr); }
+            .col-grid { grid-template-columns: repeat(2, 1fr); }
+            .report-grid { grid-template-columns: repeat(2, 1fr); }
+            .chapter-list { grid-template-columns: repeat(2, 1fr); }
+            .header h1 { font-size: 1.4rem; }
+            .stat-box .number { font-size: 1.3rem; }
+            .location-card .book { font-size: 1rem; }
         }
     </style>
 </head>
@@ -228,28 +723,44 @@
     </div>
     <div class="content">
 
-        <!-- ===== MENU DÉROULANT PARAMÈTRES ===== -->
+        <!-- ===== MENU PARAMÈTRES ===== -->
         <button class="menu-toggle" id="menuToggle">⚙️ Paramètres ▼</button>
         <div class="menu-content" id="menuContent">
-            <!-- Rythme -->
+
+            <!-- ===== RÉGLAGE DE LA PROGRESSION (dans le menu) ===== -->
+            <div class="progress-setup" id="progressSetup">
+                <div class="setup-title">📌 Où en êtes-vous dans votre lecture ?</div>
+                <div class="setup-desc">Indiquez le prochain livre et chapitre que vous souhaitez lire. La progression sera ajustée automatiquement.</div>
+                <div class="setup-inputs">
+                    <select id="setupBook"></select>
+                    <input type="number" id="setupChapter" min="1" max="150" placeholder="Chapitre">
+                    <button class="btn btn-sm btn-success" id="setupApplyBtn" style="margin-top:0;flex:0.5;">✅ Appliquer</button>
+                </div>
+                <div style="font-size:0.7rem;color:#5a5a4a;margin-top:4px;">
+                    💡 Exemple : si vous avez déjà lu jusqu'à Genèse 15, sélectionnez "Genèse" et "16" comme prochain chapitre.
+                </div>
+            </div>
+
+            <!-- Plans prédéfinis -->
             <div class="selector-group">
-                <label>⚙️ Chapitres par jour :</label>
-                <select id="rythmeSelect">
-                    <option value="5">5 chapitres/jour (doucement)</option>
-                    <option value="10">10 chapitres/jour</option>
-                    <option value="20" selected>20 chapitres/jour (recommandé)</option>
-                    <option value="30">30 chapitres/jour (intensif)</option>
-                    <option value="40">40 chapitres/jour (challenge)</option>
-                </select>
-                <button id="appliquerRythmeBtn">🔄 Appliquer ce rythme</button>
+                <label>📋 Plans prédéfinis :</label>
+                <div class="plan-grid" id="planGrid">
+                    <div class="plan-card" data-plan="5"><div class="plan-name">8 mois</div><div class="plan-detail">2 matin · 3 après-midi</div></div>
+                    <div class="plan-card" data-plan="7"><div class="plan-name">6 mois</div><div class="plan-detail">4 matin · 3 après-midi</div></div>
+                    <div class="plan-card" data-plan="10"><div class="plan-name">4 mois</div><div class="plan-detail">6 matin · 4 après-midi</div></div>
+                    <div class="plan-card" data-plan="15"><div class="plan-name">3 mois</div><div class="plan-detail">10 matin · 5 après-midi</div></div>
+                    <div class="plan-card active" data-plan="20" id="plan2mois"><div class="plan-name">2 mois</div><div class="plan-detail">10 matin · 10 après-midi</div><span class="plan-badge">Actif</span></div>
+                    <div class="plan-card" data-plan="40"><div class="plan-name">1 mois</div><div class="plan-detail">20 matin · 20 après-midi</div></div>
+                </div>
+                <div style="margin-top:6px;font-size:0.7rem;color:#5a5a4a;">⚡ Cliquez sur un plan pour le sélectionner</div>
             </div>
 
             <!-- Personnalisé -->
             <div class="selector-group">
                 <label>✍️ Nombre personnalisé :</label>
-                <div class="custom-row">
-                    <input type="number" id="customRythme" min="1" max="150" placeholder="Ex : 17">
-                    <button id="appliquerCustomBtn">✔️ Appliquer</button>
+                <div class="row-flex">
+                    <input type="number" id="customRythme" min="1" max="150" placeholder="Ex: 17">
+                    <button class="btn" id="appliquerCustomBtn">✔️ Appliquer</button>
                 </div>
             </div>
 
@@ -257,42 +768,106 @@
             <div class="selector-group">
                 <label>📆 Date de début :</label>
                 <input type="date" id="startDateInput">
-                <button id="resetBtn">✅ Changer la date</button>
+                <button class="btn" id="resetBtn">✅ Changer la date</button>
+                <button class="btn btn-danger" id="resetAllBtn" style="margin-top:4px;">🔄 Réinitialiser toute la progression</button>
+            </div>
+
+            <!-- Notifications -->
+            <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;">
+                <button class="btn" id="testNotifBtn" style="flex:1;">🔔 Tester notification</button>
             </div>
         </div>
 
         <!-- ===== STATS ===== -->
-        <div class="stats">
-            <div class="stat-item"><div class="stat-number" id="totalChapitres">1189</div><div class="stat-label">Chapitres</div></div>
-            <div class="stat-item"><div class="stat-number" id="joursTotal">—</div><div class="stat-label">Jours</div></div>
-            <div class="stat-item"><div class="stat-number" id="jourActuel">—</div><div class="stat-label">Jour #</div></div>
+        <div class="stats-grid">
+            <div class="stat-box"><div class="number" id="totalChapitres">1189</div><div class="label">Chapitres</div></div>
+            <div class="stat-box"><div class="number" id="joursTotal">—</div><div class="label">Jours</div></div>
+            <div class="stat-box"><div class="number" id="jourActuel">—</div><div class="label">Jour #</div></div>
         </div>
 
         <!-- ===== PROGRESSION ===== -->
-        <div class="progress-section">
-            <div class="progress-bar-container"><div class="progress-fill" id="progressFill">0%</div></div>
-            <div style="display: flex; justify-content: space-between; font-size:0.75rem;">
-                <span>Lus : <strong id="chapitresLus">0</strong></span>
-                <span>Restants : <strong id="chapitresRestants">1189</strong></span>
-            </div>
+        <div class="progress-wrap"><div class="progress-bar" id="progressFill">0%</div></div>
+        <div class="progress-labels">
+            <span>Lus : <strong id="chapitresLus">0</strong></span>
+            <span>Restants : <strong id="chapitresRestants">1189</strong></span>
         </div>
 
         <!-- ===== LOCALISATION ===== -->
         <div class="location-card">
-            <div class="location-title">📍 Où en êtes-vous ?</div>
-            <div class="location-detail" id="locationDetail">
-                — <span>chapitre ?</span>
+            <div><span class="book" id="locBook">—</span> <span class="chapter" id="locChapter">ch. ?</span></div>
+            <div><span class="progress-pct" id="locPct">0%</span></div>
+        </div>
+
+        <!-- ===== LECTURE DU JOUR AVEC CASES À COCHER ===== -->
+        <div class="today-box">
+            <div class="title">📅 Lecture d'aujourd'hui</div>
+            <div class="main" id="lectureAjourdhui">—</div>
+            <div class="range" id="chapitresRangee"></div>
+
+            <!-- Compteur de supplémentaires -->
+            <div class="extra-counter" id="extraCounter">
+                📚 <strong id="extraCount">0</strong> chapitre(s) supplémentaire(s) lu(s) aujourd'hui
+            </div>
+
+            <!-- Lecture du matin -->
+            <div class="reading-section" id="morningSection">
+                <div class="section-label">
+                    <span class="icon">🌅</span> Lecture du matin
+                    <span class="count" id="morningCount">0/0</span>
+                </div>
+                <div class="chapter-list" id="morningList"></div>
+                <div class="reading-summary">
+                    <span class="progress-text">Progression : <span class="done" id="morningDone">0</span>/<span class="total" id="morningTotal">0</span></span>
+                    <button class="btn-complete-day btn-sm" id="checkAllMorning">✅ Tout cocher</button>
+                </div>
+            </div>
+
+            <!-- Lecture du soir -->
+            <div class="reading-section" id="eveningSection">
+                <div class="section-label">
+                    <span class="icon">🌆</span> Lecture du reste de la journée
+                    <span class="count" id="eveningCount">0/0</span>
+                </div>
+                <div class="chapter-list" id="eveningList"></div>
+                <div class="reading-summary">
+                    <span class="progress-text">Progression : <span class="done" id="eveningDone">0</span>/<span class="total" id="eveningTotal">0</span></span>
+                    <button class="btn-complete-day btn-sm" id="checkAllEvening">✅ Tout cocher</button>
+                </div>
+            </div>
+
+            <!-- Chapitres supplémentaires -->
+            <div class="extra-section" id="extraSection">
+                <div class="section-label">
+                    <span class="icon">📚</span> Chapitres supplémentaires
+                    <span class="extra-badge">+5 disponibles</span>
+                </div>
+                <div class="chapter-list" id="extraList"></div>
+                <div class="reading-summary">
+                    <span class="progress-text">Suppl. : <span class="extra-done" id="extraDone">0</span>/<span class="total" id="extraTotal">0</span></span>
+                    <button class="btn-complete-day btn-sm btn-extra" id="checkAllExtra">✅ Tout cocher</button>
+                </div>
+            </div>
+
+            <!-- Bannière de journée complétée -->
+            <div class="day-complete-banner" id="dayCompleteBanner">
+                🎉 Objectif du jour atteint ! Vous pouvez continuer avec les chapitres supplémentaires.
+            </div>
+
+            <!-- Bouton pour valider la journée -->
+            <button class="btn" id="validateDayBtn" style="margin-top:10px;background:#2a6a3a;">✅ Valider la journée</button>
+            <div style="font-size:0.7rem;color:#5a5a4a;margin-top:4px;text-align:center;">
+                ⚠️ La progression n'est sauvegardée que lorsque vous validez la journée.
             </div>
         </div>
 
-        <!-- ===== LECTURE DU JOUR ===== -->
-        <div class="today-reading">
-            <div class="today-title">📅 Lecture d'aujourd'hui</div>
-            <div id="lectureAjourdhui">—</div>
-            <div id="chapitresRangee" style="margin-top: 8px; font-family: monospace;"></div>
+        <!-- ===== COLONNES ===== -->
+        <div class="section-title">
+            <span>📚 Progression par colonnes</span>
+            <span class="badge">Colonnes</span>
         </div>
+        <div class="col-grid" id="colGrid"></div>
 
-        <!-- ===== PARCOURS (colonnes) ===== -->
+        <!-- ===== PARCOURS (sélecteurs) ===== -->
         <div class="selector-group">
             <label>📚 Parcours :</label>
             <select id="parcoursSelect">
@@ -312,19 +887,35 @@
             <select id="livreSelect"></select>
         </div>
 
-        <!-- ===== NOTIFICATIONS ===== -->
-        <div class="notification-status" id="notifMsg">
-            🔔 Les notifications seront demandées si vous activez l'accès.
+        <!-- ===== RAPPORT ===== -->
+        <div class="section-title">
+            <span>📊 Mon rapport de lecture</span>
+            <span class="badge badge-gold">Partager</span>
         </div>
+        <div class="report-box" id="reportBox">
+            <div class="report-title" id="reportPlanName">Plan : 2 mois</div>
+            <div class="report-grid">
+                <div class="report-item"><div class="r-num" id="rProgress">0%</div><div class="r-label">Progression</div></div>
+                <div class="report-item"><div class="r-num" id="rRegularity">0%</div><div class="r-label">Régularité</div></div>
+                <div class="report-item"><div class="r-num" id="rStreak">0 🔥</div><div class="r-label">Série</div></div>
+                <div class="report-item"><div class="r-num" id="rExtra">+0</div><div class="r-label">Suppl.</div></div>
+            </div>
+            <div class="report-actions">
+                <button class="btn btn-whatsapp" id="shareWhatsappBtn">📱 Partager via WhatsApp</button>
+                <button class="btn btn-gold" id="copyReportBtn">📋 Copier le rapport</button>
+            </div>
+        </div>
+
         <div class="footer-note">
             * Basé sur 1189 chapitres (AT: 929, NT: 260) · Lecture linéaire selon l'ordre personnalisé.
             <br>📌 Les notifications apparaissent quotidiennement si la page est ouverte.
         </div>
+    </div>
 </div>
 
 <script>
     // ============================================================
-    // 1. ORDRE DES LIVRES (pour la localisation)
+    // 1. DONNÉES BIBLIQUES
     // ============================================================
     const BIBLE_ORDER = [
         { name: "Genèse", chapters: 50 },
@@ -395,61 +986,448 @@
         { name: "Apocalypse", chapters: 22 }
     ];
 
-    // Table cumulative pour localisation rapide
-    function buildCumulativeTable(order) {
+    const COLONNES = {
+        1: ["Genèse","Josué","1 Chroniques","Job","Ésaïe","Matthieu","Romains"],
+        2: ["Exode","Juges","2 Chroniques","Psaumes","Jérémie","Marc","1 Corinthiens"],
+        3: ["Lévitique","Ruth","Esdras","Proverbes","Lamentations","Luc","2 Corinthiens"],
+        4: ["Nombres","1 Samuel","2 Samuel","Néhémie","Ecclésiaste","Ézéchiel","Jean","Galates"],
+        5: ["Deutéronome","1 Rois","2 Rois","Esther","Cantique des Cantiques","Daniel","Actes","Éphésiens"],
+        6: ["Osée","Philippiens","Joël","Colossiens","Amos","1 Thessaloniciens","Abdias"],
+        7: ["2 Thessaloniciens","Jonas","1 Timothée","Michée","2 Timothée","Nahum","Tite"],
+        8: ["Habacuc","Philémon","Sophonie","Hébreux","Aggée","Jacques","Zacharie"],
+        9: ["1 Pierre","2 Pierre","Malachie","1 Jean","2 Jean","3 Jean","Jude","Apocalypse"]
+    };
+
+    // Index cumulé pour localisation rapide
+    function buildCumulative(order) {
         const table = [];
-        let cumulative = 0;
-        for (const book of order) {
-            const start = cumulative + 1;
-            const end = cumulative + book.chapters;
-            table.push({ name: book.name, chapters: book.chapters, start, end });
-            cumulative += book.chapters;
+        let cum = 0;
+        for (const b of order) {
+            const start = cum + 1;
+            cum += b.chapters;
+            table.push({ name: b.name, chapters: b.chapters, start, end: cum });
         }
         return table;
     }
-    const CUMULATIVE_TABLE = buildCumulativeTable(BIBLE_ORDER);
+    const CUM_TABLE = buildCumulative(BIBLE_ORDER);
 
-    function getLocationFromReadChapters(readCount) {
-        if (readCount <= 0) return { book: "—", chapter: 0, progress: 0 };
-        if (readCount >= 1189) return { book: "Apocalypse", chapter: 22, progress: 100 };
-        for (const item of CUMULATIVE_TABLE) {
+    function getLocation(readCount) {
+        if (readCount <= 0) return { book: "—", chapter: 0, pct: 0 };
+        if (readCount >= 1189) return { book: "✅ Terminé !", chapter: "🎉", pct: 100 };
+        for (const item of CUM_TABLE) {
             if (readCount >= item.start && readCount <= item.end) {
-                return { book: item.name, chapter: readCount - item.start + 1, progress: (readCount / 1189) * 100 };
+                return { book: item.name, chapter: readCount - item.start + 1, pct: Math.round((readCount / 1189) * 100) };
             }
         }
-        return { book: "—", chapter: 0, progress: 0 };
+        return { book: "—", chapter: 0, pct: 0 };
+    }
+
+    function getBookAndChapterFromChapterNum(chapterNum) {
+        if (chapterNum <= 0 || chapterNum > 1189) return null;
+        for (const item of CUM_TABLE) {
+            if (chapterNum >= item.start && chapterNum <= item.end) {
+                return { book: item.name, chapter: chapterNum - item.start + 1 };
+            }
+        }
+        return null;
+    }
+
+    function getChapterNumFromBookAndChapter(bookName, chapterNum) {
+        let cum = 0;
+        for (const item of CUM_TABLE) {
+            if (item.name === bookName) {
+                return cum + chapterNum;
+            }
+            cum += item.chapters;
+        }
+        return null;
     }
 
     // ============================================================
-    // 2. CONFIGURATION GÉNÉRALE
+    // 2. CONFIGURATION
     // ============================================================
-    const CHAPITRES_TOTAL = 1189;
+    const TOTAL = 1189;
     let CHAPITRES_PAR_JOUR = 20;
-    let JOURS_TOTAL = Math.ceil(CHAPITRES_TOTAL / CHAPITRES_PAR_JOUR);
+    let JOURS_TOTAL = Math.ceil(TOTAL / CHAPITRES_PAR_JOUR);
 
-    const STORAGE_START_DATE = "bibleReadingStartDate";
+    // Stockage des cases cochées pour le jour en cours
+    let checkedChapters = new Set();
+    let extraChapters = new Set();
+    let extraCount = 0;
+
+    const STORAGE_START = "bibleReadingStartDate";
     const STORAGE_RYTHME = "bibleReadingRythme";
-    const STORAGE_LAST_NOTIF_DAY = "bibleLastNotifiedDay";
+    const STORAGE_LAST_NOTIF = "bibleLastNotifiedDay";
+    const STORAGE_CHECKED = "bibleCheckedChapters";
+    const STORAGE_EXTRA = "bibleExtraChapters";
+    const STORAGE_VALIDATED_DAYS = "bibleValidatedDays";
+    const STORAGE_CUSTOM_PROGRESS = "bibleCustomProgress";
 
-    // Éléments DOM
-    const rythmeSelect = document.getElementById("rythmeSelect");
-    const appliquerRythmeBtn = document.getElementById("appliquerRythmeBtn");
-    const startDateInput = document.getElementById("startDateInput");
-    const resetBtn = document.getElementById("resetBtn");
-    const testNotifBtn = document.getElementById("testNotifBtn");
+    // DOM
     const rythmeLabel = document.getElementById("rythmeLabel");
-    const locationDetail = document.getElementById("locationDetail");
+    const startDateInput = document.getElementById("startDateInput");
     const menuToggle = document.getElementById("menuToggle");
     const menuContent = document.getElementById("menuContent");
-
-    // Toggle menu
-    menuToggle.addEventListener("click", () => {
-        menuContent.classList.toggle("open");
-        menuToggle.textContent = menuContent.classList.contains("open") ? "⚙️ Paramètres ▲" : "⚙️ Paramètres ▼";
-    });
+    const planCards = document.querySelectorAll(".plan-card");
 
     // ============================================================
-    // 3. FONCTIONS UTILITAIRES
+    // 3. FONCTIONS DE GESTION DES CASES À COCHER
+    // ============================================================
+    function loadCheckedChapters() {
+        const today = new Date().toISOString().split('T')[0];
+        
+        const saved = localStorage.getItem(STORAGE_CHECKED);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.date === today) {
+                    checkedChapters = new Set(data.chapters);
+                } else {
+                    checkedChapters = new Set();
+                }
+            } catch(e) {
+                checkedChapters = new Set();
+            }
+        } else {
+            checkedChapters = new Set();
+        }
+
+        const savedExtra = localStorage.getItem(STORAGE_EXTRA);
+        if (savedExtra) {
+            try {
+                const data = JSON.parse(savedExtra);
+                if (data.date === today) {
+                    extraChapters = new Set(data.chapters);
+                    extraCount = data.count || 0;
+                } else {
+                    extraChapters = new Set();
+                    extraCount = 0;
+                }
+            } catch(e) {
+                extraChapters = new Set();
+                extraCount = 0;
+            }
+        } else {
+            extraChapters = new Set();
+            extraCount = 0;
+        }
+    }
+
+    function saveCheckedChapters() {
+        const today = new Date().toISOString().split('T')[0];
+        const data = {
+            date: today,
+            chapters: Array.from(checkedChapters)
+        };
+        localStorage.setItem(STORAGE_CHECKED, JSON.stringify(data));
+    }
+
+    function saveExtraChapters() {
+        const today = new Date().toISOString().split('T')[0];
+        const data = {
+            date: today,
+            chapters: Array.from(extraChapters),
+            count: extraCount
+        };
+        localStorage.setItem(STORAGE_EXTRA, JSON.stringify(data));
+    }
+
+    function toggleChapter(chapterNum) {
+        if (checkedChapters.has(chapterNum)) {
+            checkedChapters.delete(chapterNum);
+        } else {
+            checkedChapters.add(chapterNum);
+        }
+        saveCheckedChapters();
+        renderDayChapters();
+        updateStats();
+    }
+
+    function toggleExtraChapter(chapterNum) {
+        if (extraChapters.has(chapterNum)) {
+            extraChapters.delete(chapterNum);
+            extraCount = Math.max(0, extraCount - 1);
+        } else {
+            extraChapters.add(chapterNum);
+            extraCount++;
+        }
+        saveExtraChapters();
+        renderDayChapters();
+        updateStats();
+    }
+
+    function checkAllChapters(chapterList) {
+        chapterList.forEach(c => checkedChapters.add(c));
+        saveCheckedChapters();
+        renderDayChapters();
+        updateStats();
+    }
+
+    function checkAllExtra(chapterList) {
+        chapterList.forEach(c => {
+            if (!extraChapters.has(c)) {
+                extraChapters.add(c);
+                extraCount++;
+            }
+        });
+        saveExtraChapters();
+        renderDayChapters();
+        updateStats();
+    }
+
+    function getValidatedDays() {
+        const saved = localStorage.getItem(STORAGE_VALIDATED_DAYS);
+        if (saved) {
+            try {
+                return new Set(JSON.parse(saved));
+            } catch(e) {}
+        }
+        return new Set();
+    }
+
+    function saveValidatedDays(days) {
+        localStorage.setItem(STORAGE_VALIDATED_DAYS, JSON.stringify(Array.from(days)));
+    }
+
+    function getTotalChapitresLus() {
+        // Vérifier si une progression personnalisée a été définie
+        const customProgress = localStorage.getItem(STORAGE_CUSTOM_PROGRESS);
+        if (customProgress) {
+            try {
+                const data = JSON.parse(customProgress);
+                if (data.chapters > 0) {
+                    return Math.min(data.chapters, TOTAL);
+                }
+            } catch(e) {}
+        }
+
+        const validatedDays = getValidatedDays();
+        let total = 0;
+        for (const dayStr of validatedDays) {
+            const dayNum = parseInt(dayStr);
+            if (dayNum >= JOURS_TOTAL) {
+                total += CHAPITRES_PAR_JOUR - (JOURS_TOTAL * CHAPITRES_PAR_JOUR - TOTAL);
+            } else {
+                total += CHAPITRES_PAR_JOUR;
+            }
+        }
+        total = Math.min(total + extraCount, TOTAL);
+        return total;
+    }
+
+    function setCustomProgress(chapterNum) {
+        if (chapterNum < 0) chapterNum = 0;
+        if (chapterNum > TOTAL) chapterNum = TOTAL;
+        localStorage.setItem(STORAGE_CUSTOM_PROGRESS, JSON.stringify({ chapters: chapterNum }));
+        // Réinitialiser les jours validés pour éviter les conflits
+        saveValidatedDays(new Set());
+        // Réinitialiser les cases à cocher
+        checkedChapters = new Set();
+        extraChapters = new Set();
+        extraCount = 0;
+        saveCheckedChapters();
+        saveExtraChapters();
+        updateAll();
+    }
+
+    // ============================================================
+    // 4. RENDU DES CHAPITRES DU JOUR
+    // ============================================================
+    function renderDayChapters() {
+        const day = getPlanDay();
+        const range = getRange(day);
+
+        const morningList = document.getElementById('morningList');
+        const eveningList = document.getElementById('eveningList');
+        const extraList = document.getElementById('extraList');
+        const extraSection = document.getElementById('extraSection');
+        const extraCounter = document.getElementById('extraCounter');
+
+        morningList.innerHTML = '';
+        eveningList.innerHTML = '';
+        extraList.innerHTML = '';
+
+        if (!range || day <= 0 || day > JOURS_TOTAL) {
+            document.getElementById('morningCount').textContent = '0/0';
+            document.getElementById('eveningCount').textContent = '0/0';
+            document.getElementById('morningDone').textContent = '0';
+            document.getElementById('morningTotal').textContent = '0';
+            document.getElementById('eveningDone').textContent = '0';
+            document.getElementById('eveningTotal').textContent = '0';
+            document.getElementById('dayCompleteBanner').classList.remove('show');
+            extraSection.classList.remove('show');
+            extraCounter.classList.remove('show');
+            return;
+        }
+
+        const totalChapters = range.end - range.start + 1;
+        const morningCount = Math.ceil(totalChapters / 2);
+        const eveningCount = totalChapters - morningCount;
+
+        let morningDone = 0;
+        let eveningDone = 0;
+
+        // Chapitres du matin
+        for (let i = 0; i < morningCount; i++) {
+            const chapterNum = range.start + i;
+            if (chapterNum > range.end) break;
+            const isChecked = checkedChapters.has(chapterNum);
+            if (isChecked) morningDone++;
+            const info = getBookAndChapterFromChapterNum(chapterNum);
+            const label = info ? `${info.book} ${info.chapter}` : `Ch. ${chapterNum}`;
+
+            const div = document.createElement('div');
+            div.className = `chapter-item ${isChecked ? 'checked' : ''}`;
+            div.innerHTML = `
+                <input type="checkbox" ${isChecked ? 'checked' : ''}>
+                <span class="chapter-name">${label}</span>
+                <span class="chapter-num">#${chapterNum}</span>
+            `;
+            div.querySelector('input').addEventListener('change', () => {
+                toggleChapter(chapterNum);
+            });
+            div.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'INPUT') {
+                    const cb = div.querySelector('input');
+                    cb.checked = !cb.checked;
+                    cb.dispatchEvent(new Event('change'));
+                }
+            });
+            morningList.appendChild(div);
+        }
+
+        // Chapitres du soir
+        for (let i = morningCount; i < totalChapters; i++) {
+            const chapterNum = range.start + i;
+            if (chapterNum > range.end) break;
+            const isChecked = checkedChapters.has(chapterNum);
+            if (isChecked) eveningDone++;
+            const info = getBookAndChapterFromChapterNum(chapterNum);
+            const label = info ? `${info.book} ${info.chapter}` : `Ch. ${chapterNum}`;
+
+            const div = document.createElement('div');
+            div.className = `chapter-item ${isChecked ? 'checked' : ''}`;
+            div.innerHTML = `
+                <input type="checkbox" ${isChecked ? 'checked' : ''}>
+                <span class="chapter-name">${label}</span>
+                <span class="chapter-num">#${chapterNum}</span>
+            `;
+            div.querySelector('input').addEventListener('change', () => {
+                toggleChapter(chapterNum);
+            });
+            div.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'INPUT') {
+                    const cb = div.querySelector('input');
+                    cb.checked = !cb.checked;
+                    cb.dispatchEvent(new Event('change'));
+                }
+            });
+            eveningList.appendChild(div);
+        }
+
+        document.getElementById('morningCount').textContent = `${morningDone}/${morningCount}`;
+        document.getElementById('eveningCount').textContent = `${eveningDone}/${eveningCount}`;
+        document.getElementById('morningDone').textContent = morningDone;
+        document.getElementById('morningTotal').textContent = morningCount;
+        document.getElementById('eveningDone').textContent = eveningDone;
+        document.getElementById('eveningTotal').textContent = eveningCount;
+
+        // Vérifier si tous les chapitres du jour sont cochés
+        const allChecked = checkedChapters.size === totalChapters;
+        document.getElementById('dayCompleteBanner').classList.toggle('show', allChecked);
+        document.getElementById('validateDayBtn').disabled = !allChecked;
+
+        // Gérer les chapitres supplémentaires
+        if (allChecked && range.end < TOTAL) {
+            extraSection.classList.add('show');
+            extraCounter.classList.add('show');
+            document.getElementById('extraCount').textContent = extraCount;
+
+            const extraStart = range.end + 1;
+            const extraMax = Math.min(extraStart + 4, TOTAL);
+            const extraTotal = extraMax - extraStart + 1;
+            let extraDone = 0;
+
+            for (let i = 0; i < extraTotal; i++) {
+                const chapterNum = extraStart + i;
+                if (chapterNum > TOTAL) break;
+                const isChecked = extraChapters.has(chapterNum);
+                if (isChecked) extraDone++;
+                const info = getBookAndChapterFromChapterNum(chapterNum);
+                const label = info ? `${info.book} ${info.chapter}` : `Ch. ${chapterNum}`;
+
+                const div = document.createElement('div');
+                div.className = `chapter-item extra ${isChecked ? 'checked' : ''}`;
+                div.innerHTML = `
+                    <input type="checkbox" ${isChecked ? 'checked' : ''}>
+                    <span class="chapter-name">${label}</span>
+                    <span class="chapter-num">#${chapterNum}</span>
+                    <span class="extra-tag">+</span>
+                `;
+                div.querySelector('input').addEventListener('change', () => {
+                    toggleExtraChapter(chapterNum);
+                });
+                div.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') {
+                        const cb = div.querySelector('input');
+                        cb.checked = !cb.checked;
+                        cb.dispatchEvent(new Event('change'));
+                    }
+                });
+                extraList.appendChild(div);
+            }
+
+            document.getElementById('extraDone').textContent = extraDone;
+            document.getElementById('extraTotal').textContent = extraTotal;
+
+        } else {
+            extraSection.classList.remove('show');
+            if (!allChecked) {
+                extraCounter.classList.remove('show');
+            }
+        }
+    }
+
+    // ============================================================
+    // 5. VALIDATION DE LA JOURNÉE
+    // ============================================================
+    function validateDay() {
+        const day = getPlanDay();
+        if (day <= 0 || day > JOURS_TOTAL) return;
+
+        const range = getRange(day);
+        if (!range) return;
+
+        const totalChapters = range.end - range.start + 1;
+        if (checkedChapters.size < totalChapters) {
+            alert('Veuillez cocher tous les chapitres avant de valider la journée.');
+            return;
+        }
+
+        const validatedDays = getValidatedDays();
+        validatedDays.add(day.toString());
+        saveValidatedDays(validatedDays);
+
+        // Supprimer la progression personnalisée car maintenant on suit le plan
+        localStorage.removeItem(STORAGE_CUSTOM_PROGRESS);
+
+        // Sauvegarder les chapitres cochés et supplémentaires
+        saveCheckedChapters();
+        saveExtraChapters();
+
+        // Réinitialiser les cases à cocher pour le lendemain
+        checkedChapters = new Set();
+        extraChapters = new Set();
+        extraCount = 0;
+        saveCheckedChapters();
+        saveExtraChapters();
+
+        updateAll();
+        alert('✅ Journée validée ! Continuez votre progression.');
+    }
+
+    // ============================================================
+    // 6. FONCTIONS PRINCIPALES
     // ============================================================
     function saveRythme() {
         localStorage.setItem(STORAGE_RYTHME, CHAPITRES_PAR_JOUR);
@@ -462,24 +1440,48 @@
         } else {
             CHAPITRES_PAR_JOUR = 20;
         }
-        rythmeSelect.value = CHAPITRES_PAR_JOUR;
+        JOURS_TOTAL = Math.ceil(TOTAL / CHAPITRES_PAR_JOUR);
         rythmeLabel.innerText = CHAPITRES_PAR_JOUR + " chapitres par jour";
-        JOURS_TOTAL = Math.ceil(CHAPITRES_TOTAL / CHAPITRES_PAR_JOUR);
+        updatePlanCards();
     }
 
-    function setRythme(nouveauRythme) {
-        if (nouveauRythme === CHAPITRES_PAR_JOUR) return;
-        CHAPITRES_PAR_JOUR = nouveauRythme;
-        JOURS_TOTAL = Math.ceil(CHAPITRES_TOTAL / CHAPITRES_PAR_JOUR);
+    function setRythme(n) {
+        if (n === CHAPITRES_PAR_JOUR) return;
+        CHAPITRES_PAR_JOUR = n;
+        JOURS_TOTAL = Math.ceil(TOTAL / CHAPITRES_PAR_JOUR);
         saveRythme();
         rythmeLabel.innerText = CHAPITRES_PAR_JOUR + " chapitres par jour";
-        localStorage.removeItem(STORAGE_LAST_NOTIF_DAY);
+        localStorage.removeItem(STORAGE_LAST_NOTIF);
+        // Réinitialiser les cases cochées
+        checkedChapters = new Set();
+        extraChapters = new Set();
+        extraCount = 0;
+        saveCheckedChapters();
+        saveExtraChapters();
+        // Supprimer la progression personnalisée
+        localStorage.removeItem(STORAGE_CUSTOM_PROGRESS);
         updateAll();
-        planifierNotificationsManquantes();
+        updatePlanCards();
+    }
+
+    function updatePlanCards() {
+        planCards.forEach(card => {
+            const val = parseInt(card.dataset.plan);
+            card.classList.toggle('active', val === CHAPITRES_PAR_JOUR);
+            const badge = card.querySelector('.plan-badge');
+            if (badge) {
+                if (val === CHAPITRES_PAR_JOUR) {
+                    badge.textContent = 'Actif';
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        });
     }
 
     function getStartDate() {
-        const stored = localStorage.getItem(STORAGE_START_DATE);
+        const stored = localStorage.getItem(STORAGE_START);
         if (stored) return new Date(stored);
         const today = new Date();
         today.setHours(0,0,0,0);
@@ -487,250 +1489,430 @@
     }
 
     function saveStartDate(date) {
-        localStorage.setItem(STORAGE_START_DATE, date.toISOString().split('T')[0]);
+        localStorage.setItem(STORAGE_START, date.toISOString().split('T')[0]);
     }
 
-    function diffDays(date1, date2) {
-        const d1 = new Date(date1); d1.setHours(0,0,0,0);
-        const d2 = new Date(date2); d2.setHours(0,0,0,0);
-        return Math.floor((d2 - d1) / (1000*60*60*24));
+    function diffDays(d1, d2) {
+        const a = new Date(d1); a.setHours(0,0,0,0);
+        const b = new Date(d2); b.setHours(0,0,0,0);
+        return Math.floor((b - a) / (1000*60*60*24));
     }
 
-    function getCurrentPlanDay(startDate) {
+    function getPlanDay() {
+        const start = getStartDate();
         const today = new Date(); today.setHours(0,0,0,0);
-        const daysSinceStart = diffDays(startDate, today);
-        if (daysSinceStart < 0) return 0;
-        const planDay = daysSinceStart + 1;
-        if (planDay > JOURS_TOTAL) return JOURS_TOTAL;
-        return planDay;
+        const days = diffDays(start, today);
+        if (days < 0) return 0;
+        const day = days + 1;
+        return day > JOURS_TOTAL ? JOURS_TOTAL : day;
     }
 
-    function getChapitresLus(planDay) {
-        if (planDay <= 0) return 0;
-        if (planDay >= JOURS_TOTAL) return CHAPITRES_TOTAL;
-        return Math.min(planDay * CHAPITRES_PAR_JOUR, CHAPITRES_TOTAL);
+    function getChapitresLus(day) {
+        return getTotalChapitresLus();
     }
 
-    function getChapitreRangeForDay(dayNum) {
-        if (dayNum <= 0) return null;
-        const startChap = (dayNum-1)*CHAPITRES_PAR_JOUR + 1;
-        let endChap = dayNum * CHAPITRES_PAR_JOUR;
-        if (endChap > CHAPITRES_TOTAL) endChap = CHAPITRES_TOTAL;
-        if (startChap > CHAPITRES_TOTAL) return null;
-        return { start: startChap, end: endChap };
+    function getRange(day) {
+        if (day <= 0 || day > JOURS_TOTAL) return null;
+        const start = (day - 1) * CHAPITRES_PAR_JOUR + 1;
+        let end = day * CHAPITRES_PAR_JOUR;
+        if (end > TOTAL) end = TOTAL;
+        if (start > TOTAL) return null;
+        return { start, end };
     }
 
-    function updateAll() {
-        const startDate = getStartDate();
-        startDateInput.value = startDate.toISOString().split('T')[0];
-        const planDay = getCurrentPlanDay(startDate);
-        const chapitresLus = getChapitresLus(planDay);
-        const pourcentage = (chapitresLus/CHAPITRES_TOTAL)*100;
-        const restants = CHAPITRES_TOTAL - chapitresLus;
+    function getColonnesProgress(readCount) {
+        const result = {};
+        let cum = 0;
+        for (const [key, books] of Object.entries(COLONNES)) {
+            let total = 0;
+            for (const b of books) {
+                const found = BIBLE_ORDER.find(x => x.name === b);
+                if (found) total += found.chapters;
+            }
+            let read = 0;
+            for (const b of books) {
+                const found = BIBLE_ORDER.find(x => x.name === b);
+                if (found) {
+                    const start = cum + 1;
+                    cum += found.chapters;
+                    if (readCount >= cum) {
+                        read += found.chapters;
+                    } else if (readCount > start) {
+                        read += readCount - start + 1;
+                    }
+                }
+            }
+            result[key] = { read: Math.min(read, total), total };
+        }
+        return result;
+    }
 
-        document.getElementById("totalChapitres").innerText = CHAPITRES_TOTAL;
+    // ============================================================
+    // 7. MISE À JOUR DE L'UI
+    // ============================================================
+    function updateStats() {
+        const start = getStartDate();
+        startDateInput.value = start.toISOString().split('T')[0];
+        const day = getPlanDay();
+        const lus = getChapitresLus(day);
+        const pct = Math.round((lus / TOTAL) * 100);
+        const restants = TOTAL - lus;
+
+        document.getElementById("totalChapitres").innerText = TOTAL;
         document.getElementById("joursTotal").innerText = JOURS_TOTAL;
-        document.getElementById("jourActuel").innerHTML = (planDay>0?planDay:0)+" / "+JOURS_TOTAL;
-        document.getElementById("chapitresLus").innerText = chapitresLus;
+        document.getElementById("jourActuel").innerHTML = (day > 0 ? day : 0) + " / " + JOURS_TOTAL;
+        document.getElementById("chapitresLus").innerText = lus;
         document.getElementById("chapitresRestants").innerText = restants;
-        const progressFill = document.getElementById("progressFill");
-        progressFill.style.width = pourcentage+"%";
-        progressFill.innerText = Math.floor(pourcentage)+"%";
+
+        const bar = document.getElementById("progressFill");
+        bar.style.width = pct + "%";
+        bar.innerText = pct + "%";
 
         // Localisation
-        const loc = getLocationFromReadChapters(chapitresLus);
-        if (chapitresLus >= CHAPITRES_TOTAL) {
-            locationDetail.innerHTML = `✅ Terminé ! Toute la Bible est lue. <span>🎉</span>`;
-        } else if (chapitresLus === 0) {
-            locationDetail.innerHTML = `⏳ Pas encore commencé. <span>Genèse 1</span>`;
-        } else {
-            locationDetail.innerHTML = `${loc.book} — chapitre ${loc.chapter} <span>${Math.round(loc.progress)}%</span>`;
-        }
+        const loc = getLocation(lus);
+        document.getElementById("locBook").innerText = loc.book;
+        document.getElementById("locChapter").innerText = loc.chapter ? "ch. " + loc.chapter : "—";
+        document.getElementById("locPct").innerText = loc.pct + "%";
 
         // Lecture du jour
+        const range = getRange(day);
         let lectureHtml = "", rangeHtml = "";
-        if (planDay>=1 && planDay<=JOURS_TOTAL) {
-            const range = getChapitreRangeForDay(planDay);
-            if(range){
-                const nb = range.end-range.start+1;
-                lectureHtml = `📖 Lire ${nb} chapitre${nb>1?'s':''} (${range.start} à ${range.end})`;
-                rangeHtml = `📌 Chapitres ${range.start} → ${range.end}`;
-                if(planDay===JOURS_TOTAL && nb<CHAPITRES_PAR_JOUR) lectureHtml += ` — Dernier jour ! 🎉`;
-            } else { lectureHtml = "✅ Terminé !"; rangeHtml = "Félicitations !"; }
-        } else if(planDay===0) { lectureHtml = "📅 Plan non commencé"; rangeHtml = "Choisissez une date de début."; }
-        else { lectureHtml = "🏁 Bible entièrement lue !"; rangeHtml = "⭐ Bravo !"; }
+        if (day <= 0) {
+            lectureHtml = "📅 Plan non commencé";
+            rangeHtml = "Choisissez une date de début.";
+        } else if (day > JOURS_TOTAL || lus >= TOTAL) {
+            lectureHtml = "🏁 Bible entièrement lue !";
+            rangeHtml = "⭐ Bravo !";
+        } else if (range) {
+            const nb = range.end - range.start + 1;
+            lectureHtml = `📖 Lire ${nb} chapitre${nb > 1 ? 's' : ''} (${range.start} à ${range.end})`;
+            if (day === JOURS_TOTAL && nb < CHAPITRES_PAR_JOUR) lectureHtml += " — Dernier jour ! 🎉";
+            rangeHtml = `📌 Chapitres ${range.start} → ${range.end}`;
+        }
         document.getElementById("lectureAjourdhui").innerText = lectureHtml;
         document.getElementById("chapitresRangee").innerText = rangeHtml;
 
-        verifierEtEnvoyerNotifications(planDay);
+        // Colonnes
+        const colProgress = getColonnesProgress(lus);
+        const colGrid = document.getElementById("colGrid");
+        colGrid.innerHTML = "";
+        for (const [key, val] of Object.entries(colProgress)) {
+            const p = Math.round((val.read / val.total) * 100);
+            const div = document.createElement("div");
+            div.className = "col-card";
+            div.innerHTML = `
+                <div class="col-name">Colonne ${key}</div>
+                <div class="col-progress">${val.read}/${val.total}</div>
+                <div class="col-bar"><div class="fill" style="width:${p}%"></div></div>
+                <div class="col-books">${p}%</div>
+            `;
+            colGrid.appendChild(div);
+        }
+
+        // Rapport
+        document.getElementById("reportPlanName").innerText = `Plan : ${CHAPITRES_PAR_JOUR} chapitres/jour`;
+        document.getElementById("rProgress").innerText = pct + "%";
+        const regularity = day > 0 ? Math.round((day / JOURS_TOTAL) * 100) : 0;
+        document.getElementById("rRegularity").innerText = regularity + "%";
+        document.getElementById("rStreak").innerText = (lus > 0 ? "1 🔥" : "0 🔥");
+        document.getElementById("rExtra").innerText = "+" + extraCount;
+
+        verifierNotifications(day);
+    }
+
+    function updateAll() {
+        loadCheckedChapters();
+        updateStats();
+        renderDayChapters();
+        populateSetupSelect();
     }
 
     // ============================================================
-    // 4. NOTIFICATIONS
+    // 8. CONFIGURATION DE LA PROGRESSION PERSONNALISÉE
     // ============================================================
-    function requestNotificationPermission() {
-        if (!("Notification" in window)) return;
-        if (Notification.permission === "default") {
-            Notification.requestPermission();
+    function populateSetupSelect() {
+        const select = document.getElementById('setupBook');
+        select.innerHTML = '';
+        BIBLE_ORDER.forEach(book => {
+            const opt = document.createElement('option');
+            opt.value = book.name;
+            opt.textContent = `${book.name} (${book.chapters} ch.)`;
+            select.appendChild(opt);
+        });
+    }
+
+    function applyCustomProgress() {
+        const bookName = document.getElementById('setupBook').value;
+        const chapterNum = parseInt(document.getElementById('setupChapter').value);
+        if (!bookName || isNaN(chapterNum) || chapterNum < 1) {
+            alert('Veuillez sélectionner un livre et un numéro de chapitre valide.');
+            return;
+        }
+
+        const totalChapter = getChapterNumFromBookAndChapter(bookName, chapterNum - 1);
+        if (totalChapter === null || totalChapter < 0) {
+            alert('Livre ou chapitre invalide.');
+            return;
+        }
+
+        if (totalChapter > TOTAL) {
+            alert('Ce chapitre dépasse le nombre total de chapitres (1189).');
+            return;
+        }
+
+        if (confirm(`Voulez-vous vraiment définir votre progression à ${bookName} ${chapterNum-1} (${totalChapter} chapitres lus) ?\nCela réinitialisera les jours validés.`)) {
+            setCustomProgress(totalChapter);
+            alert(`✅ Progression définie à ${bookName} ${chapterNum-1} (${totalChapter} chapitres lus).`);
         }
     }
 
-    function envoyerNotificationPourJour(dayNum) {
+    // ============================================================
+    // 9. NOTIFICATIONS
+    // ============================================================
+    function requestNotif() {
+        if (!("Notification" in window)) return;
+        if (Notification.permission === "default") Notification.requestPermission();
+    }
+
+    function sendNotif(day) {
         if (!("Notification" in window)) return false;
         if (Notification.permission !== "granted") return false;
-        const range = getChapitreRangeForDay(dayNum);
+        const range = getRange(day);
         if (!range) return false;
-        const nbChap = range.end - range.start + 1;
-        const message = `Jour ${dayNum}/${JOURS_TOTAL} : ${nbChap} chapitres (${range.start}–${range.end})`;
-        const notification = new Notification("📖 Rappel Bible", { body: message, icon: "https://cdn-icons-png.flaticon.com/512/2350/2350009.png" });
-        setTimeout(() => notification.close(), 7000);
+        const nb = range.end - range.start + 1;
+        const msg = `Jour ${day}/${JOURS_TOTAL} : ${nb} chapitres (${range.start}–${range.end})`;
+        const n = new Notification("📖 Rappel Bible", { body: msg });
+        setTimeout(() => n.close(), 7000);
         return true;
     }
 
-    function verifierEtEnvoyerNotifications(planDayActuel) {
+    function verifierNotifications(day) {
         if (!("Notification" in window)) return;
         if (Notification.permission !== "granted") return;
-        const lastNotifiedDayStr = localStorage.getItem(STORAGE_LAST_NOTIF_DAY);
-        let lastNotifiedDay = lastNotifiedDayStr ? parseInt(lastNotifiedDayStr) : 0;
-        const startDay = Math.max(1, lastNotifiedDay+1);
-        const endDay = Math.min(planDayActuel, JOURS_TOTAL);
-        if (startDay <= endDay && (endDay - startDay) <= 5) {
-            for (let d = startDay; d <= endDay; d++) {
-                setTimeout(() => envoyerNotificationPourJour(d), d*200);
-            }
-            localStorage.setItem(STORAGE_LAST_NOTIF_DAY, planDayActuel);
-        } else if (startDay <= endDay && (endDay - startDay) > 5) {
-            envoyerNotificationPourJour(planDayActuel);
-            localStorage.setItem(STORAGE_LAST_NOTIF_DAY, planDayActuel);
+        const last = parseInt(localStorage.getItem(STORAGE_LAST_NOTIF) || "0");
+        if (day > last && day > 0 && day <= JOURS_TOTAL) {
+            sendNotif(day);
+            localStorage.setItem(STORAGE_LAST_NOTIF, day);
         }
-        programmerProchaineNotification();
+        programmerProchaine();
     }
 
-    function programmerProchaineNotification() {
+    function programmerProchaine() {
         if (!("Notification" in window)) return;
         if (Notification.permission !== "granted") return;
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(9, 0, 0, 0);
-        const now = new Date();
-        let delay = tomorrow - now;
+        let delay = tomorrow - new Date();
         if (delay < 0) delay = 24*60*60*1000;
         if (window._notifTimeout) clearTimeout(window._notifTimeout);
         window._notifTimeout = setTimeout(() => {
-            const todayPlanDay = getCurrentPlanDay(getStartDate());
-            if (todayPlanDay >= 1 && todayPlanDay <= JOURS_TOTAL) {
-                envoyerNotificationPourJour(todayPlanDay);
-                localStorage.setItem(STORAGE_LAST_NOTIF_DAY, todayPlanDay);
+            const day = getPlanDay();
+            if (day > 0 && day <= JOURS_TOTAL) {
+                sendNotif(day);
+                localStorage.setItem(STORAGE_LAST_NOTIF, day);
             }
-            programmerProchaineNotification();
+            programmerProchaine();
         }, delay);
     }
 
-    function planifierNotificationsManquantes() {
-        if (Notification.permission === "granted") {
-            const planDay = getCurrentPlanDay(getStartDate());
-            verifierEtEnvoyerNotifications(planDay);
-        }
-    }
-
-    function testNotification() {
+    function testNotif() {
         if (!("Notification" in window)) { alert("Navigateur ne supporte pas les notifications"); return; }
         if (Notification.permission === "granted") {
-            new Notification("🔔 Test réussi", { body: "Les notifications fonctionnent sur votre appareil !" });
+            new Notification("🔔 Test réussi", { body: "Les notifications fonctionnent !" });
         } else if (Notification.permission === "default") {
-            Notification.requestPermission().then(perm => {
-                if(perm === "granted") testNotification();
-                else alert("Veuillez accepter les notifications");
-            });
+            Notification.requestPermission().then(p => { if (p === "granted") testNotif(); });
         } else {
-            alert("Notifications bloquées. Activez-les dans les paramètres Android > Applications > cette app > Notifications");
+            alert("Notifications bloquées. Activez-les dans les paramètres.");
         }
     }
 
     // ============================================================
-    // 5. PARCOURS (colonnes)
+    // 10. PARTAGE
     // ============================================================
-    const parcoursBiblique = {
-        1: ["Genèse (50)","Josué (24)","1 Chroniques (29)","Job (42)","Ésaïe (66)","Matthieu (28)","Romains (16)"],
-        2: ["Exode (40)","Juges (21)","2 Chroniques (36)","Psaumes (150)","Jérémie (52)","Marc (16)","1 Corinthiens (16)"],
-        3: ["Lévitique (27)","Ruth (4)","Esdras (10)","Proverbes (31)","Lamentations (5)","Luc (24)","2 Corinthiens (13)"],
-        4: ["Nombres (36)","1 Samuel (31)","2 Samuel (24)","Néhémie (13)","Ecclésiaste (12)","Ézéchiel (48)","Jean (21)","Galates (6)"],
-        5: ["Deutéronome (34)","1 Rois (22)","2 Rois (25)","Esther (10)","Cantique des Cantiques (8)","Daniel (12)","Actes (28)","Éphésiens (6)"],
-        6: ["Osée (14)","Philippiens (4)","Joël (4)","Colossiens (4)","Amos (9)","1 Thessaloniciens (5)","Abdias (1)"],
-        7: ["2 Thessaloniciens (3)","Jonas (4)","1 Timothée (6)","Michée (7)","2 Timothée (4)","Nahum (3)","Tite (3)"],
-        8: ["Habacuc (3)","Philémon (1)","Sophonie (3)","Hébreux (13)","Aggée (2)","Jacques (5)","Zacharie (14)"],
-        9: ["1 Pierre (5)","2 Pierre (3)","Malachie (4)","1 Jean (5)","2 Jean (1)","3 Jean (1)","Jude (1)","Apocalypse (22)"]
-    };
+    function getReportText() {
+        const day = getPlanDay();
+        const lus = getChapitresLus(day);
+        const pct = Math.round((lus / TOTAL) * 100);
+        const range = getRange(day);
+        const todayText = range ? `${range.start}–${range.end}` : "Terminé";
+        return `📊 Mon rapport de lecture biblique
 
+📖 Plan : ${CHAPITRES_PAR_JOUR} chapitres/jour
+📈 Progression : ${pct}% (${lus}/${TOTAL})
+📅 Jour : ${day}/${JOURS_TOTAL}
+📖 Lecture du jour : ${todayText}
+📚 Chapitres supplémentaires : +${extraCount}
+
+📌 Parcours Biblique - Camp de Jésus-Christ`;
+    }
+
+    function shareWhatsApp() {
+        const text = encodeURIComponent(getReportText());
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+
+    function copyReport() {
+        navigator.clipboard.writeText(getReportText()).then(() => {
+            const btn = document.getElementById("copyReportBtn");
+            const orig = btn.textContent;
+            btn.textContent = "✅ Copié !";
+            setTimeout(() => btn.textContent = orig, 2000);
+        });
+    }
+
+    // ============================================================
+    // 11. PARCOURS / LIVRES
+    // ============================================================
     const parcoursSelect = document.getElementById("parcoursSelect");
     const livreSelect = document.getElementById("livreSelect");
 
     function chargerLivres() {
-        const colonne = parcoursSelect.value;
+        const col = parcoursSelect.value;
         livreSelect.innerHTML = "";
-        parcoursBiblique[colonne].forEach(livre => {
-            const option = document.createElement("option");
-            option.value = livre;
-            option.textContent = livre;
-            livreSelect.appendChild(option);
+        const books = COLONNES[col] || [];
+        books.forEach(name => {
+            const opt = document.createElement("option");
+            opt.value = name;
+            const found = BIBLE_ORDER.find(b => b.name === name);
+            opt.textContent = found ? `${name} (${found.chapters})` : name;
+            livreSelect.appendChild(opt);
         });
     }
     parcoursSelect.addEventListener("change", chargerLivres);
     chargerLivres();
 
     // ============================================================
-    // 6. INITIALISATION
+    // 12. RÉINITIALISATION COMPLÈTE
+    // ============================================================
+    function resetAllProgress() {
+        if (confirm('⚠️ Voulez-vous vraiment réinitialiser TOUTE votre progression ?\nCette action est irréversible.')) {
+            if (confirm('Confirmez-vous la réinitialisation complète ?')) {
+                localStorage.removeItem(STORAGE_VALIDATED_DAYS);
+                localStorage.removeItem(STORAGE_CUSTOM_PROGRESS);
+                localStorage.removeItem(STORAGE_CHECKED);
+                localStorage.removeItem(STORAGE_EXTRA);
+                localStorage.removeItem(STORAGE_LAST_NOTIF);
+                checkedChapters = new Set();
+                extraChapters = new Set();
+                extraCount = 0;
+                updateAll();
+                alert('✅ Toute la progression a été réinitialisée.');
+            }
+        }
+    }
+
+    // ============================================================
+    // 13. INITIALISATION
     // ============================================================
     function init() {
         loadRythme();
-        if (!localStorage.getItem(STORAGE_START_DATE)) {
+        if (!localStorage.getItem(STORAGE_START)) {
             const today = new Date(); today.setHours(0,0,0,0);
             saveStartDate(today);
         }
         updateAll();
 
-        appliquerRythmeBtn.addEventListener("click", () => {
-            const newVal = parseInt(rythmeSelect.value);
-            if (!isNaN(newVal) && newVal > 0) setRythme(newVal);
+        // Menu toggle
+        menuToggle.addEventListener("click", () => {
+            menuContent.classList.toggle("open");
+            menuToggle.textContent = menuContent.classList.contains("open") ? "⚙️ Paramètres ▲" : "⚙️ Paramètres ▼";
         });
 
+        // Plans prédéfinis
+        planCards.forEach(card => {
+            card.addEventListener("click", () => {
+                const val = parseInt(card.dataset.plan);
+                if (!isNaN(val)) setRythme(val);
+            });
+        });
+
+        // Custom
         document.getElementById("appliquerCustomBtn").addEventListener("click", () => {
             const val = parseInt(document.getElementById("customRythme").value);
             if (!isNaN(val) && val > 0) {
-                if (![...rythmeSelect.options].some(o => o.value == val)) {
-                    const opt = document.createElement("option");
-                    opt.value = val;
-                    opt.text = val + " chapitres/jour";
-                    rythmeSelect.appendChild(opt);
-                }
-                rythmeSelect.value = val;
                 setRythme(val);
             }
         });
 
-        resetBtn.addEventListener("click", () => {
+        // Date
+        document.getElementById("resetBtn").addEventListener("click", () => {
             if (startDateInput.value) {
-                const newDate = new Date(startDateInput.value);
-                if (!isNaN(newDate.getTime())) {
-                    saveStartDate(newDate);
-                    localStorage.removeItem(STORAGE_LAST_NOTIF_DAY);
+                const d = new Date(startDateInput.value);
+                if (!isNaN(d.getTime())) {
+                    saveStartDate(d);
+                    localStorage.removeItem(STORAGE_LAST_NOTIF);
+                    checkedChapters = new Set();
+                    extraChapters = new Set();
+                    extraCount = 0;
+                    saveCheckedChapters();
+                    saveExtraChapters();
                     updateAll();
-                    planifierNotificationsManquantes();
                 }
             }
         });
 
-        testNotifBtn.addEventListener("click", testNotification);
+        // Réinitialisation complète
+        document.getElementById("resetAllBtn").addEventListener("click", resetAllProgress);
 
-        requestNotificationPermission();
+        // Progression personnalisée
+        document.getElementById("setupApplyBtn").addEventListener("click", applyCustomProgress);
+
+        // Boutons "Tout cocher"
+        document.getElementById("checkAllMorning").addEventListener("click", () => {
+            const range = getRange(getPlanDay());
+            if (!range) return;
+            const totalChapters = range.end - range.start + 1;
+            const morningCount = Math.ceil(totalChapters / 2);
+            const chapters = [];
+            for (let i = 0; i < morningCount; i++) {
+                chapters.push(range.start + i);
+            }
+            checkAllChapters(chapters);
+        });
+
+        document.getElementById("checkAllEvening").addEventListener("click", () => {
+            const range = getRange(getPlanDay());
+            if (!range) return;
+            const totalChapters = range.end - range.start + 1;
+            const morningCount = Math.ceil(totalChapters / 2);
+            const chapters = [];
+            for (let i = morningCount; i < totalChapters; i++) {
+                chapters.push(range.start + i);
+            }
+            checkAllChapters(chapters);
+        });
+
+        document.getElementById("checkAllExtra").addEventListener("click", () => {
+            const range = getRange(getPlanDay());
+            if (!range) return;
+            const extraStart = range.end + 1;
+            const extraMax = Math.min(extraStart + 4, TOTAL);
+            const chapters = [];
+            for (let i = extraStart; i <= extraMax; i++) {
+                chapters.push(i);
+            }
+            checkAllExtra(chapters);
+        });
+
+        // Validation de la journée
+        document.getElementById("validateDayBtn").addEventListener("click", validateDay);
+
+        // Notifications
+        document.getElementById("testNotifBtn").addEventListener("click", testNotif);
+        requestNotif();
         setTimeout(() => {
             if (Notification.permission === "granted") {
-                planifierNotificationsManquantes();
-                programmerProchaineNotification();
+                programmerProchaine();
             }
         }, 1500);
 
-        setInterval(() => updateAll(), 3600000);
+        // Partage
+        document.getElementById("shareWhatsappBtn").addEventListener("click", shareWhatsApp);
+        document.getElementById("copyReportBtn").addEventListener("click", copyReport);
+
+        // Mise à jour périodique
+        setInterval(updateAll, 60000);
     }
 
     init();
