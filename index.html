@@ -3,6 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <!-- ===== POUR L'INSTALLATION SUR TELEPHONE / BUREAU ===== -->
+    <!-- Nom de l'application -->
+    <meta name="application-name" content="Parcours Biblique">
+    <meta name="apple-mobile-web-app-title" content="Parcours Biblique">
+    
+    <!-- Thème de couleur pour la barre d'adresse -->
+    <meta name="theme-color" content="#1e3a2f">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Icônes pour différentes résolutions -->
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+    
+    <!-- Lien vers le manifeste -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Service Worker (pour le mode hors ligne) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker enregistré'))
+                .catch(() => console.log('Service Worker non disponible'));
+        }
+    </script>
     <title>📖 Parcours Biblique - Lecture personnalisée</title>
     <style>
         * {
