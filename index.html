@@ -882,11 +882,11 @@
             <div class="extra-section" id="extraSection">
                 <div class="section-label">
                     <span class="icon">📚</span> Chapitres supplémentaires
-                    <span class="extra-badge">+5 disponibles</span>
+                    <span class="extra-badge" id="extraBadge">+5 disponibles</span>
                 </div>
                 <div class="chapter-list" id="extraList"></div>
                 <div class="reading-summary">
-                    <span class="progress-text">Suppl. : <span class="extra-done" id="extraDone">0</span>/<span class="total" id="extraTotal">0</span></span>
+                    <span class="progress-text">Suppl. : <span class="extra-done" id="extraDone">0</span> chapitre(s) lu(s)</span>
                     <button class="btn-complete-day btn-sm btn-extra" id="checkAllExtra">✅ Tout cocher</button>
                 </div>
             </div>
@@ -1408,9 +1408,12 @@
             document.getElementById('extraCount').textContent = extraCount;
 
             const extraStart = range.end + 1;
-            const extraMax = Math.min(extraStart + 4, TOTAL);
+            // La fenêtre s'agrandit au fur et à mesure : toujours 5 chapitres de plus que ceux déjà lus.
+            const extraMax = Math.min(extraStart + 4 + extraCount, TOTAL);
             const extraTotal = extraMax - extraStart + 1;
             let extraDone = 0;
+            const extraBadge = document.getElementById('extraBadge');
+            if (extraBadge) extraBadge.textContent = '+' + (TOTAL - range.end) + ' disponibles';
 
             for (let i = 0; i < extraTotal; i++) {
                 const chapterNum = extraStart + i;
@@ -1441,8 +1444,7 @@
                 extraList.appendChild(div);
             }
 
-            document.getElementById('extraDone').textContent = extraDone;
-            document.getElementById('extraTotal').textContent = extraTotal;
+            document.getElementById('extraDone').textContent = extraCount;
 
         } else {
             extraSection.classList.remove('show');
@@ -1973,7 +1975,7 @@
             const range = getRange(getPlanDay());
             if (!range) return;
             const extraStart = range.end + 1;
-            const extraMax = Math.min(extraStart + 4, TOTAL);
+            const extraMax = Math.min(extraStart + 4 + extraCount, TOTAL);
             const chapters = [];
             for (let i = extraStart; i <= extraMax; i++) {
                 chapters.push(i);
