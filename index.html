@@ -788,6 +788,18 @@
                 </div>
             </div>
 
+            <!-- Chapitres déjà lus avant de commencer -->
+            <div class="selector-group">
+                <label>📖 Chapitres déjà lus avant de commencer :</label>
+                <div class="row-flex">
+                    <input type="number" id="customOffsetInput" min="0" max="1189" placeholder="Ex: 0">
+                    <button class="btn" id="customOffsetBtn">✔️ Appliquer</button>
+                </div>
+                <div style="font-size:0.7rem;color:#5a5a4a;margin-top:4px;">
+                    💡 Ce nombre s'ajoute à votre barre de progression. Ex : si vous avez déjà lu 300 chapitres, indiquez 300.
+                </div>
+            </div>
+
             <!-- Date de début -->
             <div class="selector-group">
                 <label>📆 Date de début :</label>
@@ -981,7 +993,7 @@
         { name: "Éphésiens", chapters: 6 },
         { name: "Osée", chapters: 14 },
         { name: "Philippiens", chapters: 4 },
-        { name: "Joël", chapters: 4 },
+        { name: "Joël", chapters: 3 },
         { name: "Colossiens", chapters: 4 },
         { name: "Amos", chapters: 9 },
         { name: "1 Thessaloniciens", chapters: 5 },
@@ -1037,17 +1049,17 @@
 
     function getLocation(readCount) {
         if (readCount <= 0) return { book: "—", chapter: 0, pct: 0 };
-        if (readCount >= 1189) return { book: "✅ Terminé !", chapter: "🎉", pct: 100 };
+        if (readCount >= TOTAL) return { book: "✅ Terminé !", chapter: "🎉", pct: 100 };
         for (const item of CUM_TABLE) {
             if (readCount >= item.start && readCount <= item.end) {
-                return { book: item.name, chapter: readCount - item.start + 1, pct: Math.round((readCount / 1189) * 100) };
+                return { book: item.name, chapter: readCount - item.start + 1, pct: Math.round((readCount / TOTAL) * 100) };
             }
         }
         return { book: "—", chapter: 0, pct: 0 };
     }
 
     function getBookAndChapterFromChapterNum(chapterNum) {
-        if (chapterNum <= 0 || chapterNum > 1189) return null;
+        if (chapterNum <= 0 || chapterNum > TOTAL) return null;
         for (const item of CUM_TABLE) {
             if (chapterNum >= item.start && chapterNum <= item.end) {
                 return { book: item.name, chapter: chapterNum - item.start + 1 };
@@ -1074,10 +1086,16 @@
     let CHAPITRES_PAR_JOUR = 20;
     let JOURS_TOTAL = Math.ceil(TOTAL / CHAPITRES_PAR_JOUR);
 
+    // Chapitres déjà lus avant de commencer le plan (offset personnalisé)
+    let customOffset = 0;
+
     // Stockage des cases cochées pour le jour en cours
     let checkedChapters = new Set();
     let extraChapters = new Set();
     let extraCount = 0;
+
+    // Total de chapitres lus et validés au fil du plan (persistant)
+    let completedChapters = 0;
 
     const STORAGE_START = "bibleReadingStartDate";
     const STORAGE_RYTHME = "bibleReadingRythme";
@@ -1086,6 +1104,8 @@
     const STORAGE_EXTRA = "bibleExtraChapters";
     const STORAGE_VALIDATED_DAYS = "bibleValidatedDays";
     const STORAGE_CUSTOM_PROGRESS = "bibleCustomProgress";
+    const STORAGE_CUSTOM_OFFSET = "bibleCustomOffset";
+    const STORAGE_COMPLETED = "bibleCompletedChapters";
 
     // DOM
     const rythmeLabel = document.getElementById("rythmeLabel");
@@ -1214,35 +1234,46 @@
     }
 
     function getTotalChapitresLus() {
-        // Vérifier si une progression personnalisée a été définie
-        const customProgress = localStorage.getItem(STORAGE_CUSTOM_PROGRESS);
-        if (customProgress) {
-            try {
-                const data = JSON.parse(customProgress);
-                if (data.chapters > 0) {
-                    return Math.min(data.chapters, TOTAL);
-                }
-            } catch(e) {}
-        }
+        // Offset personnalisé + chapitres validés + chapitres cochés aujourd'hui + supplémentaires
+        let total = customOffset + completedChapters + checkedChapters.size + extraCount;
+        return Math.min(total, TOTAL);
+    }
 
-        const validatedDays = getValidatedDays();
-        let total = 0;
-        for (const dayStr of validatedDays) {
-            const dayNum = parseInt(dayStr);
-            if (dayNum >= JOURS_TOTAL) {
-                total += CHAPITRES_PAR_JOUR - (JOURS_TOTAL * CHAPITRES_PAR_JOUR - TOTAL);
-            } else {
-                total += CHAPITRES_PAR_JOUR;
-            }
+    function loadCompletedChapters() {
+        const saved = localStorage.getItem(STORAGE_COMPLETED);
+        if (saved) {
+            completedChapters = Math.max(0, parseInt(saved) || 0);
         }
-        total = Math.min(total + extraCount, TOTAL);
-        return total;
+    }
+
+    function saveCompletedChapters() {
+        localStorage.setItem(STORAGE_COMPLETED, completedChapters.toString());
+    }
+
+    function loadCustomOffset() {
+        const saved = localStorage.getItem(STORAGE_CUSTOM_OFFSET);
+        if (saved) {
+            customOffset = Math.max(0, parseInt(saved) || 0);
+        }
+    }
+
+    function saveCustomOffset() {
+        localStorage.setItem(STORAGE_CUSTOM_OFFSET, customOffset.toString());
+    }
+
+    function recomputeJoursTotal() {
+        const remaining = TOTAL - customOffset;
+        JOURS_TOTAL = Math.ceil(remaining / CHAPITRES_PAR_JOUR);
+        if (JOURS_TOTAL < 1) JOURS_TOTAL = 1;
     }
 
     function setCustomProgress(chapterNum) {
         if (chapterNum < 0) chapterNum = 0;
         if (chapterNum > TOTAL) chapterNum = TOTAL;
-        localStorage.setItem(STORAGE_CUSTOM_PROGRESS, JSON.stringify({ chapters: chapterNum }));
+        customOffset = chapterNum;
+        saveCustomOffset();
+        completedChapters = 0;
+        saveCompletedChapters();
         // Réinitialiser les jours validés pour éviter les conflits
         saveValidatedDays(new Set());
         // Réinitialiser les cases à cocher
@@ -1251,6 +1282,7 @@
         extraCount = 0;
         saveCheckedChapters();
         saveExtraChapters();
+        recomputeJoursTotal();
         updateAll();
     }
 
@@ -1357,12 +1389,12 @@
         document.getElementById('eveningTotal').textContent = eveningCount;
 
         // Vérifier si tous les chapitres du jour sont cochés
-        const allChecked = checkedChapters.size === totalChapters;
+        const allChecked = checkedChapters.size >= totalChapters;
         document.getElementById('dayCompleteBanner').classList.toggle('show', allChecked);
-        document.getElementById('validateDayBtn').disabled = !allChecked;
+        // Le bouton "Valider" reste toujours actif : le quota est un objectif, pas une limite
 
-        // Gérer les chapitres supplémentaires
-        if (allChecked && range.end < TOTAL) {
+        // Gérer les chapitres supplémentaires (toujours disponibles pour dépasser le quota)
+        if (range.end < TOTAL) {
             extraSection.classList.add('show');
             extraCounter.classList.add('show');
             document.getElementById('extraCount').textContent = extraCount;
@@ -1406,9 +1438,7 @@
 
         } else {
             extraSection.classList.remove('show');
-            if (!allChecked) {
-                extraCounter.classList.remove('show');
-            }
+            extraCounter.classList.remove('show');
         }
     }
 
@@ -1419,27 +1449,23 @@
         const day = getPlanDay();
         if (day <= 0 || day > JOURS_TOTAL) return;
 
-        const range = getRange(day);
-        if (!range) return;
-
-        const totalChapters = range.end - range.start + 1;
-        if (checkedChapters.size < totalChapters) {
-            alert('Veuillez cocher tous les chapitres avant de valider la journée.');
+        // Nombre de chapitres réellement lus aujourd'hui (quota + supplémentaires)
+        const lusAujourdhui = checkedChapters.size + extraCount;
+        if (lusAujourdhui <= 0) {
+            alert('Cochez au moins un chapitre avant de valider la journée.');
             return;
         }
 
+        // Ajouter les chapitres lus au compteur persistant
+        completedChapters += lusAujourdhui;
+        saveCompletedChapters();
+
+        // Marquer la journée comme validée (suivi de série / régularité)
         const validatedDays = getValidatedDays();
         validatedDays.add(day.toString());
         saveValidatedDays(validatedDays);
 
-        // Supprimer la progression personnalisée car maintenant on suit le plan
-        localStorage.removeItem(STORAGE_CUSTOM_PROGRESS);
-
-        // Sauvegarder les chapitres cochés et supplémentaires
-        saveCheckedChapters();
-        saveExtraChapters();
-
-        // Réinitialiser les cases à cocher pour le lendemain
+        // Réinitialiser les cases à cocher
         checkedChapters = new Set();
         extraChapters = new Set();
         extraCount = 0;
@@ -1447,7 +1473,7 @@
         saveExtraChapters();
 
         updateAll();
-        alert('✅ Journée validée ! Continuez votre progression.');
+        alert('✅ Journée validée ! Progression mise à jour : +' + lusAujourdhui + ' chapitres.');
     }
 
     // ============================================================
@@ -1465,6 +1491,7 @@
             CHAPITRES_PAR_JOUR = 20;
         }
         JOURS_TOTAL = Math.ceil(TOTAL / CHAPITRES_PAR_JOUR);
+        recomputeJoursTotal();
         rythmeLabel.innerText = CHAPITRES_PAR_JOUR + " chapitres par jour";
         updatePlanCards();
     }
@@ -1473,6 +1500,7 @@
         if (n === CHAPITRES_PAR_JOUR) return;
         CHAPITRES_PAR_JOUR = n;
         JOURS_TOTAL = Math.ceil(TOTAL / CHAPITRES_PAR_JOUR);
+        recomputeJoursTotal();
         saveRythme();
         rythmeLabel.innerText = CHAPITRES_PAR_JOUR + " chapitres par jour";
         localStorage.removeItem(STORAGE_LAST_NOTIF);
@@ -1537,8 +1565,8 @@
 
     function getRange(day) {
         if (day <= 0 || day > JOURS_TOTAL) return null;
-        const start = (day - 1) * CHAPITRES_PAR_JOUR + 1;
-        let end = day * CHAPITRES_PAR_JOUR;
+        const start = customOffset + (day - 1) * CHAPITRES_PAR_JOUR + 1;
+        let end = customOffset + day * CHAPITRES_PAR_JOUR;
         if (end > TOTAL) end = TOTAL;
         if (start > TOTAL) return null;
         return { start, end };
@@ -1561,7 +1589,7 @@
                     cum += found.chapters;
                     if (readCount >= cum) {
                         read += found.chapters;
-                    } else if (readCount > start) {
+                    } else if (readCount >= start) {
                         read += readCount - start + 1;
                     }
                 }
@@ -1814,12 +1842,17 @@
             if (confirm('Confirmez-vous la réinitialisation complète ?')) {
                 localStorage.removeItem(STORAGE_VALIDATED_DAYS);
                 localStorage.removeItem(STORAGE_CUSTOM_PROGRESS);
+                localStorage.removeItem(STORAGE_CUSTOM_OFFSET);
+                localStorage.removeItem(STORAGE_COMPLETED);
                 localStorage.removeItem(STORAGE_CHECKED);
                 localStorage.removeItem(STORAGE_EXTRA);
                 localStorage.removeItem(STORAGE_LAST_NOTIF);
+                customOffset = 0;
+                completedChapters = 0;
                 checkedChapters = new Set();
                 extraChapters = new Set();
                 extraCount = 0;
+                recomputeJoursTotal();
                 updateAll();
                 alert('✅ Toute la progression a été réinitialisée.');
             }
@@ -1831,6 +1864,9 @@
     // ============================================================
     function init() {
         loadRythme();
+        loadCustomOffset();
+        loadCompletedChapters();
+        recomputeJoursTotal();
         if (!localStorage.getItem(STORAGE_START)) {
             const today = new Date(); today.setHours(0,0,0,0);
             saveStartDate(today);
@@ -1881,6 +1917,24 @@
 
         // Progression personnalisée
         document.getElementById("setupApplyBtn").addEventListener("click", applyCustomProgress);
+
+        // Offset personnalisé (chapitres déjà lus avant de commencer)
+        const customOffsetInput = document.getElementById("customOffsetInput");
+        const customOffsetBtn = document.getElementById("customOffsetBtn");
+        if (customOffsetInput && customOffsetBtn) {
+            customOffsetInput.value = customOffset;
+            customOffsetBtn.addEventListener("click", () => {
+                const val = parseInt(customOffsetInput.value);
+                if (!isNaN(val) && val >= 0 && val <= TOTAL) {
+                    customOffset = val;
+                    saveCustomOffset();
+                    recomputeJoursTotal();
+                    updateAll();
+                } else {
+                    alert('Veuillez saisir un nombre valide entre 0 et ' + TOTAL + '.');
+                }
+            });
+        }
 
         // Boutons "Tout cocher"
         document.getElementById("checkAllMorning").addEventListener("click", () => {
