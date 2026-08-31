@@ -1269,8 +1269,9 @@
     }
 
     function recomputeJoursTotal() {
-        const remaining = TOTAL - customOffset;
-        JOURS_TOTAL = Math.ceil(remaining / CHAPITRES_PAR_JOUR);
+        // Le nombre total de jours du plan est fixe (basé sur tout le plan),
+        // indépendamment de l'offset de chapitres déjà lus.
+        JOURS_TOTAL = Math.ceil(TOTAL / CHAPITRES_PAR_JOUR);
         if (JOURS_TOTAL < 1) JOURS_TOTAL = 1;
     }
 
@@ -1572,8 +1573,8 @@
 
     function getRange(day) {
         if (day <= 0 || day > JOURS_TOTAL) return null;
-        const start = customOffset + (day - 1) * CHAPITRES_PAR_JOUR + 1;
-        let end = customOffset + day * CHAPITRES_PAR_JOUR;
+        const start = (day - 1) * CHAPITRES_PAR_JOUR + 1;
+        let end = day * CHAPITRES_PAR_JOUR;
         if (end > TOTAL) end = TOTAL;
         if (start > TOTAL) return null;
         return { start, end };
