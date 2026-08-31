@@ -800,12 +800,10 @@
                 </div>
             </div>
 
-            <!-- Date de début -->
+            <!-- Réinitialisation -->
             <div class="selector-group">
-                <label>📆 Date de début :</label>
-                <input type="date" id="startDateInput">
-                <button class="btn" id="resetBtn">✅ Changer la date</button>
-                <button class="btn btn-danger" id="resetAllBtn" style="margin-top:4px;">🔄 Réinitialiser toute la progression</button>
+                <label>🔄 Réinitialisation :</label>
+                <button class="btn btn-danger" id="resetAllBtn">🔄 Réinitialiser toute la progression</button>
             </div>
 
             <!-- Notifications -->
@@ -819,6 +817,15 @@
             <div class="stat-box"><div class="number" id="totalChapitres">1189</div><div class="label">Chapitres</div></div>
             <div class="stat-box"><div class="number" id="joursTotal">—</div><div class="label">Jours</div></div>
             <div class="stat-box"><div class="number" id="jourActuel">—</div><div class="label">Jour #</div></div>
+        </div>
+
+        <!-- ===== DATE DE DÉBUT ===== -->
+        <div class="selector-group">
+            <label>📆 Date de début du parcours :</label>
+            <div class="row-flex">
+                <input type="date" id="startDateInput">
+                <button class="btn" id="resetBtn">✅ Changer la date</button>
+            </div>
         </div>
 
         <!-- ===== PROGRESSION ===== -->
