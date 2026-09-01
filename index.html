@@ -800,12 +800,6 @@
                 </div>
             </div>
 
-            <!-- Réinitialisation -->
-            <div class="selector-group">
-                <label>🔄 Réinitialisation :</label>
-                <button class="btn btn-danger" id="resetAllBtn">🔄 Réinitialiser toute la progression</button>
-            </div>
-
             <!-- Notifications -->
             <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;">
                 <button class="btn" id="testNotifBtn" style="flex:1;">🔔 Tester notification</button>
@@ -826,6 +820,7 @@
                 <input type="date" id="startDateInput">
                 <button class="btn" id="resetBtn">✅ Changer la date</button>
             </div>
+            <button class="btn btn-danger" id="resetAllBtn" style="margin-top:8px;">🔄 Réinitialiser toute la progression</button>
         </div>
 
         <!-- ===== PROGRESSION ===== -->
@@ -1490,10 +1485,11 @@
         bar.style.width = pct + "%";
         bar.innerText = pct + "%";
 
-        // Localisation
+        // Localisation : affiche le prochain chapitre à lire (position actuelle)
         const loc = getLocation(lus);
-        document.getElementById("locBook").innerText = loc.book;
-        document.getElementById("locChapter").innerText = loc.chapter ? "ch. " + loc.chapter : "—";
+        const nextLoc = getLocation(Math.min(lus + 1, TOTAL));
+        document.getElementById("locBook").innerText = nextLoc.book;
+        document.getElementById("locChapter").innerText = nextLoc.chapter ? "ch. " + nextLoc.chapter : "—";
         document.getElementById("locPct").innerText = loc.pct + "%";
 
         // Lecture du jour
