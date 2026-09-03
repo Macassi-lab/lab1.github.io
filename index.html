@@ -1092,11 +1092,15 @@
     // Ensemble persistant des chapitres lus (cycle courant)
     let readChapters = new Set();
 
+    // Jours de lecture (dates où l'utilisateur a lu au moins un chapitre)
+    let readDays = new Set();
+
     const STORAGE_START = "bibleReadingStartDate";
     const STORAGE_RYTHME = "bibleReadingRythme";
     const STORAGE_LAST_NOTIF = "bibleLastNotifiedDay";
     const STORAGE_READ = "bibleReadChapters";
     const STORAGE_CUSTOM_OFFSET = "bibleCustomOffset";
+    const STORAGE_READ_DAYS = "bibleReadDays";
 
     // DOM
     const rythmeLabel = document.getElementById("rythmeLabel");
@@ -1125,6 +1129,42 @@
         localStorage.setItem(STORAGE_READ, JSON.stringify(Array.from(readChapters)));
     }
 
+    function loadReadDays() {
+        const saved = localStorage.getItem(STORAGE_READ_DAYS);
+        if (saved) {
+            try { readDays = new Set(JSON.parse(saved)); } catch(e) { readDays = new Set(); }
+        } else {
+            readDays = new Set();
+        }
+    }
+
+    function saveReadDays() {
+        localStorage.setItem(STORAGE_READ_DAYS, JSON.stringify(Array.from(readDays)));
+    }
+
+    function recordReading() {
+        const today = new Date().toISOString().split('T')[0];
+        if (!readDays.has(today)) {
+            readDays.add(today);
+            saveReadDays();
+        }
+    }
+
+    function computeStreak() {
+        let streak = 0;
+        const d = new Date();
+        // Si aujourd'hui n'a pas encore été lu, on part d'hier
+        const todayStr = d.toISOString().split('T')[0];
+        if (!readDays.has(todayStr)) {
+            d.setDate(d.getDate() - 1);
+        }
+        while (readDays.has(d.toISOString().split('T')[0])) {
+            streak++;
+            d.setDate(d.getDate() - 1);
+        }
+        return streak;
+    }
+
     function cycleComplete() {
         // Un cycle est terminé : on remet à zéro pour reprendre depuis le début
         readChapters.clear();
@@ -1141,6 +1181,7 @@
                 cycleComplete();
             }
         }
+        recordReading();
         saveReadChapters();
         renderDayChapters();
         updateStats();
@@ -1151,6 +1192,7 @@
         if (readChapters.size >= TOTAL) {
             cycleComplete();
         }
+        recordReading();
         saveReadChapters();
         renderDayChapters();
         updateStats();
@@ -1416,12 +1458,9 @@
     }
 
     function getPlanDay() {
-        const start = getStartDate();
-        const today = new Date(); today.setHours(0,0,0,0);
-        const days = diffDays(start, today);
-        if (days < 0) return 0;
-        const day = days + 1;
-        return day > JOURS_TOTAL ? JOURS_TOTAL : day;
+        // Jour basé sur la progression (nombre de chapitres lus), pas le calendrier
+        const pos = (customOffset + readChapters.size) % TOTAL;
+        return Math.floor(pos / CHAPITRES_PAR_JOUR) + 1;
     }
 
     function getChapitresLus(day) {
@@ -1429,9 +1468,10 @@
     }
 
     function getRange(day) {
-        if (day <= 0 || day > JOURS_TOTAL) return null;
-        const start = (day - 1) * CHAPITRES_PAR_JOUR + 1;
-        let end = day * CHAPITRES_PAR_JOUR;
+        // Chapitres à lire : les prochains après la position actuelle (ignorant le jour calendaire)
+        const pos = (customOffset + readChapters.size) % TOTAL;
+        const start = pos + 1;
+        let end = pos + CHAPITRES_PAR_JOUR;
         if (end > TOTAL) end = TOTAL;
         if (start > TOTAL) return null;
         return { start, end };
@@ -1530,16 +1570,19 @@
         // Rapport
         document.getElementById("reportPlanName").innerText = `Plan : ${CHAPITRES_PAR_JOUR} chapitres/jour`;
         document.getElementById("rProgress").innerText = pct + "%";
-        const regularity = day > 0 ? Math.round((day / JOURS_TOTAL) * 100) : 0;
+        const daysSinceStart = Math.max(diffDays(getStartDate(), new Date()) + 1, 1);
+        const regularity = Math.min(100, Math.round((readDays.size / daysSinceStart) * 100));
         document.getElementById("rRegularity").innerText = regularity + "%";
-        document.getElementById("rStreak").innerText = (lus > 0 ? "1 🔥" : "0 🔥");
-        document.getElementById("rExtra").innerText = readChapters.size;
+        document.getElementById("rStreak").innerText = computeStreak() + " 🔥";
+        const extraChapters = Math.max(0, lus - CHAPITRES_PAR_JOUR * daysSinceStart);
+        document.getElementById("rExtra").innerText = "+" + extraChapters;
 
         verifierNotifications(day);
     }
 
     function updateAll() {
         loadReadChapters();
+        loadReadDays();
         updateStats();
         renderDayChapters();
         populateSetupSelect();
@@ -1654,13 +1697,17 @@
         const pct = Math.round((lus / TOTAL) * 100);
         const range = getRange(day);
         const todayText = range ? `${range.start}–${range.end}` : "Terminé";
+        const streak = computeStreak();
+        const daysSinceStart = Math.max(diffDays(getStartDate(), new Date()) + 1, 1);
+        const extraChapters = Math.max(0, lus - CHAPITRES_PAR_JOUR * daysSinceStart);
         return `📊 Mon rapport de lecture biblique
 
 📖 Plan : ${CHAPITRES_PAR_JOUR} chapitres/jour
 📈 Progression : ${pct}% (${lus}/${TOTAL})
 📅 Jour : ${day}/${JOURS_TOTAL}
 📖 Lecture du jour : ${todayText}
-📚 Chapitres lus au total : ${readChapters.size}
+🔥 Série : ${streak} jour${streak > 1 ? 's' : ''} consécutif${streak > 1 ? 's' : ''}
+📚 Chapitres supplémentaires : +${extraChapters}
 
 📌 Parcours Biblique - Camp de Jésus-Christ`;
     }
@@ -1708,10 +1755,13 @@
             if (confirm('Confirmez-vous la réinitialisation complète ?')) {
                 localStorage.removeItem(STORAGE_READ);
                 localStorage.removeItem(STORAGE_CUSTOM_OFFSET);
+                localStorage.removeItem(STORAGE_READ_DAYS);
                 localStorage.removeItem(STORAGE_LAST_NOTIF);
                 customOffset = 0;
                 readChapters = new Set();
+                readDays = new Set();
                 saveReadChapters();
+                saveReadDays();
                 recomputeJoursTotal();
                 updateAll();
                 alert('✅ Toute la progression a été réinitialisée.');
