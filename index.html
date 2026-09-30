@@ -13,8 +13,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <!-- Icônes pour différentes résolutions -->
-    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     
     <!-- Lien vers le manifeste -->
     <link rel="manifest" href="manifest.json">
@@ -788,18 +789,6 @@
                 </div>
             </div>
 
-            <!-- Chapitres déjà lus avant de commencer -->
-            <div class="selector-group">
-                <label>📖 Chapitres déjà lus avant de commencer :</label>
-                <div class="row-flex">
-                    <input type="number" id="customOffsetInput" min="0" max="1189" placeholder="Ex: 0">
-                    <button class="btn" id="customOffsetBtn">✔️ Appliquer</button>
-                </div>
-                <div style="font-size:0.7rem;color:#5a5a4a;margin-top:4px;">
-                    💡 Ce nombre s'ajoute à votre barre de progression. Ex : si vous avez déjà lu 300 chapitres, indiquez 300.
-                </div>
-            </div>
-
             <!-- Notifications -->
             <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;">
                 <button class="btn" id="testNotifBtn" style="flex:1;">🔔 Tester notification</button>
@@ -808,7 +797,7 @@
 
         <!-- ===== STATS ===== -->
         <div class="stats-grid">
-            <div class="stat-box"><div class="number" id="totalChapitres">1189</div><div class="label">Chapitres</div></div>
+            <div class="stat-box"><div class="number" id="totalChapitres">—</div><div class="label">Chapitres</div></div>
             <div class="stat-box"><div class="number" id="joursTotal">—</div><div class="label">Jours</div></div>
             <div class="stat-box"><div class="number" id="jourActuel">—</div><div class="label">Jour #</div></div>
         </div>
@@ -827,7 +816,7 @@
         <div class="progress-wrap"><div class="progress-bar" id="progressFill">0%</div></div>
         <div class="progress-labels">
             <span>Lus : <strong id="chapitresLus">0</strong></span>
-            <span>Restants : <strong id="chapitresRestants">1189</strong></span>
+            <span>Restants : <strong id="chapitresRestants">—</strong></span>
         </div>
 
         <!-- ===== LOCALISATION ===== -->
@@ -943,7 +932,7 @@
         </div>
 
         <div class="footer-note">
-            * Basé sur 1189 chapitres (AT: 929, NT: 260) · Lecture linéaire selon l'ordre personnalisé.
+            * Basé sur <span id="footerTotal">—</span> chapitres (AT: 929, NT: 260) · Lecture linéaire selon l'ordre personnalisé.
             <br>📌 Les notifications apparaissent quotidiennement si la page est ouverte.
         </div>
     </div>
@@ -1082,7 +1071,8 @@
     // ============================================================
     // 2. CONFIGURATION
     // ============================================================
-    const TOTAL = 1189;
+    // Total calculé depuis les données (source unique de vérité)
+    const TOTAL = BIBLE_ORDER.reduce((sum, b) => sum + b.chapters, 0);
     let CHAPITRES_PAR_JOUR = 20;
     let JOURS_TOTAL = Math.ceil(TOTAL / CHAPITRES_PAR_JOUR);
 
@@ -1168,7 +1158,9 @@
     function cycleComplete() {
         // Un cycle est terminé : on remet à zéro pour reprendre depuis le début
         readChapters.clear();
+        customOffset = 0;
         saveReadChapters();
+        saveCustomOffset();
         alert('🎉 Félicitations ! Vous avez terminé toute la Bible.\nUn nouveau cycle recommence depuis le début.');
     }
 
@@ -1177,7 +1169,7 @@
             readChapters.delete(chapterNum);
         } else {
             readChapters.add(chapterNum);
-            if (readChapters.size >= TOTAL) {
+            if (customOffset + readChapters.size >= TOTAL) {
                 cycleComplete();
             }
         }
@@ -1189,7 +1181,7 @@
 
     function checkAllChapters(chapterList) {
         chapterList.forEach(c => readChapters.add(c));
-        if (readChapters.size >= TOTAL) {
+        if (customOffset + readChapters.size >= TOTAL) {
             cycleComplete();
         }
         recordReading();
@@ -1516,6 +1508,7 @@
         const restants = TOTAL - lus;
 
         document.getElementById("totalChapitres").innerText = TOTAL;
+        document.getElementById("footerTotal").innerText = TOTAL;
         document.getElementById("joursTotal").innerText = JOURS_TOTAL;
         document.getElementById("jourActuel").innerHTML = (day > 0 ? day : 0) + " / " + JOURS_TOTAL;
         document.getElementById("chapitresLus").innerText = lus;
@@ -1617,11 +1610,11 @@
         }
 
         if (totalChapter > TOTAL) {
-            alert('Ce chapitre dépasse le nombre total de chapitres (1189).');
+            alert('Ce chapitre dépasse le nombre total de chapitres (' + TOTAL + ').');
             return;
         }
 
-        if (confirm(`Voulez-vous vraiment définir votre progression à ${bookName} ${chapterNum-1} (${totalChapter} chapitres lus) ?\nCela réinitialisera les jours validés.`)) {
+        if (confirm(`Voulez-vous vraiment définir votre progression à ${bookName} ${chapterNum-1} (${totalChapter} chapitres lus) ?\nLes chapitres cochés seront réinitialisés.`)) {
             setCustomProgress(totalChapter);
             alert(`✅ Progression définie à ${bookName} ${chapterNum-1} (${totalChapter} chapitres lus).`);
         }
@@ -1821,24 +1814,6 @@
 
         // Progression personnalisée
         document.getElementById("setupApplyBtn").addEventListener("click", applyCustomProgress);
-
-        // Offset personnalisé (chapitres déjà lus avant de commencer)
-        const customOffsetInput = document.getElementById("customOffsetInput");
-        const customOffsetBtn = document.getElementById("customOffsetBtn");
-        if (customOffsetInput && customOffsetBtn) {
-            customOffsetInput.value = customOffset;
-            customOffsetBtn.addEventListener("click", () => {
-                const val = parseInt(customOffsetInput.value);
-                if (!isNaN(val) && val >= 0 && val <= TOTAL) {
-                    customOffset = val;
-                    saveCustomOffset();
-                    recomputeJoursTotal();
-                    updateAll();
-                } else {
-                    alert('Veuillez saisir un nombre valide entre 0 et ' + TOTAL + '.');
-                }
-            });
-        }
 
         // Boutons "Tout cocher"
         document.getElementById("checkAllMorning").addEventListener("click", () => {
