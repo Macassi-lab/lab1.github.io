@@ -1766,14 +1766,23 @@
         programmerProchaine();
     }
 
+    const RAPPEL_HEURES = [9, 21]; // Heures de rappel : 9h (matin) et 21h (soir)
+
     function programmerProchaine() {
         if (!("Notification" in window)) return;
         if (Notification.permission !== "granted") return;
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(9, 0, 0, 0);
-        let delay = tomorrow - new Date();
-        if (delay < 0) delay = 24*60*60*1000;
+
+        // Prochaine occurrence parmi les heures de rappel (aujourd'hui ou demain)
+        const now = new Date();
+        let next = null;
+        for (const h of RAPPEL_HEURES) {
+            const candidate = new Date(now);
+            candidate.setHours(h, 0, 0, 0);
+            if (candidate <= now) candidate.setDate(candidate.getDate() + 1);
+            if (!next || candidate < next) next = candidate;
+        }
+
+        const delay = next - now;
         if (window._notifTimeout) clearTimeout(window._notifTimeout);
         window._notifTimeout = setTimeout(() => {
             const day = getPlanDay();
