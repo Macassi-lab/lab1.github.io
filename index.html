@@ -53,6 +53,9 @@
                 appId: "95037644-fed9-4103-8e03-787c00d8a42c",
                 // Un service worker existe déjà à la racine (sw.js) : le worker
                 // OneSignal est donc placé dans un sous-dossier dédié.
+                // Ce drapeau est requis pour que le chemin ci-dessous soit pris en
+                // compte (sinon le SDK utilise le chemin par défaut du dashboard).
+                serviceWorkerOverrideForTypical: true,
                 serviceWorkerPath: "/lab1.github.io/push/onesignal/OneSignalSDKWorker.js",
                 serviceWorkerParam: { scope: "/lab1.github.io/push/onesignal/" }
             });
