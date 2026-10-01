@@ -1567,7 +1567,7 @@
         const regularity = Math.min(100, Math.round((readDays.size / daysSinceStart) * 100));
         document.getElementById("rRegularity").innerText = regularity + "%";
         document.getElementById("rStreak").innerText = computeStreak() + " 🔥";
-        const extraChapters = Math.max(0, lus - CHAPITRES_PAR_JOUR * daysSinceStart);
+        const extraChapters = Math.max(0, lus - CHAPITRES_PAR_JOUR * readDays.size);
         document.getElementById("rExtra").innerText = "+" + extraChapters;
 
         verifierNotifications(day);
@@ -1691,8 +1691,7 @@
         const range = getRange(day);
         const todayText = range ? `${range.start}–${range.end}` : "Terminé";
         const streak = computeStreak();
-        const daysSinceStart = Math.max(diffDays(getStartDate(), new Date()) + 1, 1);
-        const extraChapters = Math.max(0, lus - CHAPITRES_PAR_JOUR * daysSinceStart);
+        const extraChapters = Math.max(0, lus - CHAPITRES_PAR_JOUR * readDays.size);
         return `📊 Mon rapport de lecture biblique
 
 📖 Plan : ${CHAPITRES_PAR_JOUR} chapitres/jour
