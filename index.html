@@ -28,6 +28,66 @@
                 .catch(() => console.log('Service Worker non disponible'));
         }
     </script>
+
+    <!-- ===== OneSignal Web Push ===== -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        // Accès centralisé : tout appel SDK OneSignal passe par ce module.
+        function osDefer(fn) {
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            window.OneSignalDeferred.push(fn);
+        }
+
+        window.OneSignalService = {
+            login: function (externalId) { osDefer(function (os) { os.login(externalId); }); },
+            logout: function () { osDefer(function (os) { os.logout(); }); },
+            addEmail: function (email) { osDefer(function (os) { os.User.addEmail(email); }); },
+            addSms: function (phone) { osDefer(function (os) { os.User.addSms(phone); }); },
+            addTag: function (key, value) { osDefer(function (os) { os.User.addTag(key, value); }); },
+            requestPermission: function () { osDefer(function (os) { os.Notifications.requestPermission(); }); }
+        };
+
+        // Initialisation (une seule fois, le plus tôt possible).
+        osDefer(async function (OneSignal) {
+            await OneSignal.init({
+                appId: "95037644-fed9-4103-8e03-787c00d8a42c",
+                // Un service worker existe déjà à la racine (sw.js) : le worker
+                // OneSignal est donc placé dans un sous-dossier dédié.
+                serviceWorkerPath: "/lab1.github.io/push/onesignal/OneSignalSDKWorker.js",
+                serviceWorkerParam: { scope: "/lab1.github.io/push/onesignal/" }
+            });
+        });
+
+        // Dialogue de vérification (web) : affiché une fois après l'initialisation.
+        // Le bouton "Got it" déclenche la demande d'autorisation push.
+        var osDialogShown = false;
+        function showIntegrationCompleteModal(onAcknowledge) {
+            var overlay = document.getElementById("onesignalOverlay");
+            var btn = document.getElementById("onesignalGotIt");
+            if (!overlay || !btn) { onAcknowledge(); return; }
+            overlay.hidden = false;
+            btn.addEventListener("click", function () {
+                overlay.hidden = true;
+                onAcknowledge();
+            }, { once: true });
+        }
+        function setupVerificationDialog() {
+            osDefer(function (OneSignal) {
+                if (!osDialogShown) {
+                    osDialogShown = true;
+                    showIntegrationCompleteModal(function () {
+                        OneSignal.Notifications.requestPermission();
+                    });
+                }
+                // Confirme l'enregistrement une fois l'utilisateur inscrit.
+                OneSignal.User.PushSubscription.addEventListener("change", function () {
+                    var id = OneSignal.User.PushSubscription.id;
+                    if (id) { console.log("OneSignal push subscription registered:", id); }
+                });
+            });
+        }
+        setupVerificationDialog();
+    </script>
     <title>📖 Parcours Biblique - Lecture personnalisée</title>
     <style>
         * {
@@ -738,9 +798,66 @@
             .stat-box .number { font-size: 1.3rem; }
             .location-card .book { font-size: 1rem; }
         }
+        /* ===== OneSignal : dialogue de vérification ===== */
+        .onesignal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .onesignal-overlay[hidden] {
+            display: none;
+        }
+        .onesignal-modal {
+            background: #ffffff;
+            border-radius: 24px;
+            max-width: 420px;
+            width: 100%;
+            padding: 26px 24px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 1px solid #e8e0d0;
+        }
+        .onesignal-modal h2 {
+            color: #1e3a2f;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 10px;
+        }
+        .onesignal-modal p {
+            color: #4a5a4a;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            margin: 0 0 18px;
+        }
+        .onesignal-modal button {
+            background: #2a6a3a;
+            color: #ffffff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .onesignal-modal button:hover {
+            background: #1a5a2a;
+        }
     </style>
 </head>
 <body>
+<!-- ===== OneSignal : dialogue de vérification ===== -->
+<div id="onesignalOverlay" class="onesignal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="onesignalTitle">
+    <div class="onesignal-modal">
+        <h2 id="onesignalTitle">Your OneSignal SDK integration is complete!</h2>
+        <p>You can now send Push Notifications &amp; In-App Messages through OneSignal. Tap below to enable push notifications.</p>
+        <button id="onesignalGotIt">Got it</button>
+    </div>
+</div>
 <div class="card">
     <div class="header">
         <h1>📖 Parcours Biblique</h1>
@@ -1623,11 +1740,6 @@
     // ============================================================
     // 9. NOTIFICATIONS
     // ============================================================
-    function requestNotif() {
-        if (!("Notification" in window)) return;
-        if (Notification.permission === "default") Notification.requestPermission();
-    }
-
     function sendNotif(day) {
         if (!("Notification" in window)) return false;
         if (Notification.permission !== "granted") return false;
@@ -1855,7 +1967,6 @@
 
         // Notifications
         document.getElementById("testNotifBtn").addEventListener("click", testNotif);
-        requestNotif();
         setTimeout(() => {
             if (Notification.permission === "granted") {
                 programmerProchaine();
